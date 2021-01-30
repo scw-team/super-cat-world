@@ -1,12 +1,13 @@
 package de.ggj21.scw.screen;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import de.ggj21.scw.world.GameWorld;
 import de.ggj21.scw.SuperCatWorldGame;
+import de.ggj21.scw.world.GameWorld;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,6 +26,7 @@ public class GameScreen extends ScreenAdapter {
     public void show() {
         final TiledMap map = new TmxMapLoader().load("levels/level1.tmx");
         this.world = new GameWorld(map);
+        Gdx.input.setInputProcessor(new InputMultiplexer(world.getInputProcessor(), Gdx.input.getInputProcessor()));
     }
 
     @Override

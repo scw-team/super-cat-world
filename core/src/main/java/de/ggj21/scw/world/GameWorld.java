@@ -1,5 +1,6 @@
 package de.ggj21.scw.world;
 
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapObject;
@@ -8,6 +9,7 @@ import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -34,6 +36,7 @@ public class GameWorld {
     private final Viewport viewport;
     private final OrthogonalTiledMapRenderer mapRenderer;
     private final SpriteBatch spriteBatch;
+    private final InputProcessor inputProcessor;
 
 
     public enum ObjectType {
@@ -64,18 +67,35 @@ public class GameWorld {
         final Vector2 start = new Vector2(
                 properties.get("x", Float.class),
                 properties.get("y", Float.class));
-        this.actors.add(new Cat(start, UNIT_SCALE,
+        final Cat cat = new Cat(start, UNIT_SCALE,
                 new CollisionHelperFactory() {
                     @Override
                     public CollisionHelper getHelperForActor(float actorWidth, float actorHeight) {
                         return new CollisionHelper() {
                             @Override
                             public Vector2 resolve(Vector2 start, Vector2 desiredEnd) {
-                                return desiredEnd;
+                                if (checkForConflict(desiredEnd)) {
+                                    return start;
+                                } else {
+                                    return desiredEnd;
+                                }
+                            }
+
+                            private boolean checkForConflict(Vector2 desiredEnd) {
+                                final Rectangle actor = new Rectangle(desiredEnd.x, desiredEnd.y, actorWidth, actorHeight);
+                                for (Rectangle obstacle : wallsAndPlatforms) {
+                                    if (Intersector.overlaps(obstacle, actor)) {
+                                        LOG.debug("Collision detected");
+                                        return true;
+                                    }
+                                }
+                                return false;
                             }
                         };
                     }
-                }));
+                });
+        this.actors.add(cat);
+        this.inputProcessor = cat.getInputProcessor();
 
         // debug output
         final Iterator<String> keyIterator = properties.getKeys();
@@ -94,6 +114,10 @@ public class GameWorld {
 
     public Viewport getViewport() {
         return viewport;
+    }
+
+    public InputProcessor getInputProcessor() {
+        return inputProcessor;
     }
 
     public void render(float delta) {

@@ -1,6 +1,9 @@
 package de.ggj21.scw.world.actor;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputAdapter;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -14,14 +17,14 @@ import java.util.Set;
 
 public class Cat implements GameActor {
 
-    private static final float HORIZONTAL_SPEED = 5;
+    private static final float HORIZONTAL_SPEED = 100;
 
     private final Vector2 position;
     private final Animation<TextureRegion> animation;
     private final float scale;
     private final CollisionHelper collisionHelper;
 
-    private final Set<State> currentStates = EnumSet.of(State.InTheAir);
+    private final Set<State> currentStates = EnumSet.of(State.Falling);
 
     float elapsedTime = 0;
 
@@ -54,16 +57,31 @@ public class Cat implements GameActor {
         batch.draw(currentFrame, position.x * scale, position.y * scale, currentFrame.getRegionWidth() * scale, currentFrame.getRegionHeight() * scale);
     }
 
-    public enum State {
-        /**
-         * On the ground, but not moving.
-         */
-        AtRest {
+    public InputProcessor getInputProcessor() {
+        return new InputAdapter() {
             @Override
-            Vector2 update(Vector2 start, float delta, CollisionHelper collisionHelper) {
-                return start;
+            public boolean keyDown(int keycode) {
+                if (Input.Keys.RIGHT == keycode) {
+                    currentStates.add(State.MovingRight);
+                    return true;
+                }
+
+                return super.keyDown(keycode);
             }
-        },
+
+            @Override
+            public boolean keyUp(int keycode) {
+                if (Input.Keys.RIGHT == keycode) {
+                    currentStates.remove(State.MovingRight);
+                    return true;
+                }
+
+                return super.keyUp(keycode);
+            }
+        };
+    }
+
+    public enum State {
         /**
          * On the ground, moving left.
          */
@@ -85,11 +103,11 @@ public class Cat implements GameActor {
             }
         },
         /**
-         * In the air, jumping / falling.
+         * Affected by gravity.
          */
-        InTheAir {
-            private static final float MAX_VERTICAL_SPEED = 20;
-            private static final float GRAVITY = 3f;
+        Falling {
+            private static final float MAX_VERTICAL_SPEED = 500;
+            private static final float GRAVITY = 90f;
             private float verticalSpeed = 0;
 
             @Override
@@ -103,7 +121,11 @@ public class Cat implements GameActor {
                     verticalSpeed = Math.min(MAX_VERTICAL_SPEED, verticalSpeed + delta * GRAVITY);
                 }
                 final Vector2 end = new Vector2(start.x, start.y - delta * verticalSpeed);
-                return collisionHelper.resolve(start, end);
+                final Vector2 resolvedEnd = collisionHelper.resolve(start, end);
+                if (!end.equals(resolvedEnd)) {
+                    verticalSpeed = 0;
+                }
+                return resolvedEnd;
             }
         },
         /**
