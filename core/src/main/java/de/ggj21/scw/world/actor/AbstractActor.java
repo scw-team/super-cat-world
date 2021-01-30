@@ -12,15 +12,16 @@ import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.world.CollisionHelper;
 import de.ggj21.scw.world.CollisionHelperFactory;
 import de.ggj21.scw.world.GameWorld;
+import de.ggj21.scw.world.actor.effect.StatusEffect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public abstract class AbstractActor implements GameActor {
     private static final float HORIZONTAL_SPEED = 400 * GameWorld.VIEWPORT_SCALE;
-    private static final float JUMP_SPEED = 1_200 * GameWorld.VIEWPORT_SCALE;
+    private static final float JUMP_SPEED = 1_500 * GameWorld.VIEWPORT_SCALE;
     private static final Logger LOG = LogManager.getLogger(AbstractActor.class);
 
-    private final PositionAndCondition positionAndCondition;
+    final PositionAndCondition positionAndCondition;
     private final Animation<TextureRegion> animation;
     private final float width;
     private final float height;
@@ -43,8 +44,8 @@ public abstract class AbstractActor implements GameActor {
             final boolean affectedByGravity,
             final float worldScale,
             final float actorVisualScale) {
-        this.width = width;
-        this.height = height;
+        this.width = width * actorVisualScale;
+        this.height = height * actorVisualScale;
         this.xOffset = xOffset;
         this.yOffset = yOffset;
         this.worldScale = worldScale;
@@ -95,6 +96,9 @@ public abstract class AbstractActor implements GameActor {
     public void update(float delta) {
         elapsedTime += delta;
         positionAndCondition.update(delta, collisionHelper);
+        if (positionAndCondition.getPosition().y + height < 0) {
+            positionAndCondition.kill();
+        }
     }
 
     @Override
@@ -150,5 +154,14 @@ public abstract class AbstractActor implements GameActor {
     @Override
     public boolean isDead() {
         return positionAndCondition.isDead();
+    }
+
+    @Override
+    public void interactWith(GameActor otherActor) {
+    }
+
+    @Override
+    public void addStatusEffect(StatusEffect toAdd) {
+        positionAndCondition.addStatusEffect(toAdd);
     }
 }

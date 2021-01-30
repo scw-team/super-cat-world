@@ -23,12 +23,15 @@ import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.world.actor.Cat;
 import de.ggj21.scw.world.actor.GameActor;
 import de.ggj21.scw.world.actor.Pixel;
+import de.ggj21.scw.world.actor.Tonno;
+import de.ggj21.scw.world.actor.effect.StatusEffect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 public class GameWorld {
 
@@ -41,6 +44,7 @@ public class GameWorld {
     public static final float VIEWPORT_SCALE = 3 / 4f;
     private static final int VIEWPORT_WIDTH = 60;
     private static final int VIEWPORT_HEIGHT = 34;
+    public static final String MAP_PROPERTY_TYPE_NAME = "type";
 
 
     private final List<Rectangle> wallsAndPlatforms;
@@ -61,7 +65,8 @@ public class GameWorld {
 
     public enum ObjectType {
         Wall("wall"),
-        Cat("cat");
+        Cat("cat"),
+        Tonno("fish");
 
         String key;
 
@@ -75,11 +80,27 @@ public class GameWorld {
         wallsAndPlatforms = new ArrayList<>();
         final MapLayer objectLayer = map.getLayers().get("objects");
         final MapObjects objects = objectLayer.getObjects();
-        for (RectangleMapObject rectangleObject : objects.getByType(RectangleMapObject.class)) {
-            if (ObjectType.Wall.key.equals(rectangleObject.getProperties().get("type"))) {
-                final Rectangle boundingBox = rectangleObject.getRectangle();
-                wallsAndPlatforms.add(boundingBox);
-                LOG.debug("Wall at: {}", boundingBox);
+        for (MapObject object : objects) {
+            if (object instanceof RectangleMapObject) {
+                final RectangleMapObject rectangleObject = (RectangleMapObject) object;
+                if (ObjectType.Wall.key.equals(rectangleObject.getProperties().get("type"))) {
+                    final Rectangle boundingBox = rectangleObject.getRectangle();
+                    wallsAndPlatforms.add(boundingBox);
+                    LOG.debug("Wall at: {}", boundingBox);
+                }
+            }
+
+            final MapProperties properties = object.getProperties();
+            // debug output
+            final Iterator<String> keyIterator = properties.getKeys();
+            while (keyIterator.hasNext()) {
+                final String key = keyIterator.next();
+                LOG.debug("Object {} has property {} = {}", object.getName(), key, properties.get(key));
+            }
+            if (ObjectType.Tonno.key.equals(properties.get(MAP_PROPERTY_TYPE_NAME))) {
+                final Vector2 start = getObjectPosition(properties);
+                LOG.debug("Fish can at position {}", start);
+                this.actors.add(new Tonno(start, getCollisionHelperFactory(), soundManager, UNIT_SCALE));
             }
         }
         mapWidth = ((TiledMapTileLayer) map.getLayers().get("tiles")).getWidth() * 16 * UNIT_SCALE;
@@ -117,7 +138,7 @@ public class GameWorld {
     }
 
     private Vector2 getObjectPosition(MapProperties properties) {
-        final float y = getCameraHeight() - properties.get("y", Float.class);
+        final float y = properties.get("y", Float.class);
         final Vector2 start = new Vector2(properties.get("x", Float.class), y);
         return start;
     }
@@ -145,11 +166,12 @@ public class GameWorld {
                     }
 
                     private boolean checkForConflict(Vector2 desiredEnd) {
+                        boolean result = false;
                         final Rectangle actorTargetBoundingBox = new Rectangle(desiredEnd.x + actor.getXOffset(), desiredEnd.y + actor.getYOffset(), actor.getWidth(), actor.getHeight());
                         for (Rectangle obstacle : wallsAndPlatforms) {
                             if (Intersector.overlaps(obstacle, actorTargetBoundingBox)) {
                                 LOG.trace("Collision with environment detected");
-                                return true;
+                                result = true;
                             }
                         }
                         for (GameActor otherActor : actors) {
@@ -158,13 +180,14 @@ public class GameWorld {
                             }
                             if (Intersector.overlaps(otherActor.getBoundingBox(), actorTargetBoundingBox)) {
                                 LOG.debug("Collision with actor detected: {}", otherActor);
+                                otherActor.interactWith(cat);
+                                cat.interactWith(otherActor);
                                 if (otherActor instanceof Pixel) {
                                     state = LevelState.Won;
                                 }
-                                return true;
                             }
                         }
-                        return false;
+                        return result;
                     }
                 };
             }
@@ -184,20 +207,28 @@ public class GameWorld {
     }
 
     public void update(float delta) {
-        for (final GameActor a : actors) {
-            a.update(delta);
-        }
-
         if (state == LevelState.Running && cat.isDead()) {
             LOG.info("Game loss");
             soundManager.playSound(SoundManager.Sounds.Death);
             state = LevelState.Lost;
         }
+
+        if (state == LevelState.Running) {
+            final ListIterator<GameActor> it = actors.listIterator();
+            while (it.hasNext()) {
+                final GameActor a = it.next();
+                if (a.isDead()) {
+                    it.remove();
+                } else {
+                    a.update(delta);
+                }
+            }
+        }
     }
 
     public void render() {
         float cameraCenter = cat.getPosition().x * UNIT_SCALE;
-        LOG.debug("Camera center is {} and map width is {}", cameraCenter, mapWidth);
+        LOG.trace("Camera center is {} and map width is {}", cameraCenter, mapWidth);
 
         if (cameraCenter < VIEWPORT_WIDTH / 2f) {
             cameraCenter = VIEWPORT_WIDTH / 2f;
@@ -243,6 +274,35 @@ public class GameWorld {
             shapeRenderer.end();
             Gdx.gl20.glDisable(GL20.GL_BLEND);
         }
+
+        renderStatusEffects(cat.getStatusEffects());
+    }
+
+    private void renderStatusEffects(List<StatusEffect> statusEffects) {
+        spriteBatch.begin();
+        for (int i = 0; i < statusEffects.size(); i++) {
+            spriteBatch.draw(statusEffects.get(i).getIcon(),
+                    camera.position.x - VIEWPORT_WIDTH / 2f + 0.5f,
+                    getCameraHeight() * UNIT_SCALE * VIEWPORT_SCALE - (i + 1) - 0.5f, 1, 1);
+        }
+        spriteBatch.end();
+        Gdx.gl20.glEnable(GL20.GL_BLEND);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        for (int i = 0; i < statusEffects.size(); i++) {
+            if (statusEffects.get(i).isPositive()) {
+                shapeRenderer.setColor(0, 1, 0, 0.5f);
+            } else {
+                shapeRenderer.setColor(1, 0, 0, 0.5f);
+            }
+            shapeRenderer.rect(
+                    camera.position.x - VIEWPORT_WIDTH / 2f + 2,
+                    getCameraHeight() * UNIT_SCALE * VIEWPORT_SCALE - (i + 1) - 0.5f + 0.2f,
+                    statusEffects.get(i).getRemainingDuration(),
+                    0.6f
+            );
+        }
+        shapeRenderer.end();
+        Gdx.gl20.glDisable(GL20.GL_BLEND);
     }
 
     private boolean checkIntersection(GameActor a, GameActor b) {

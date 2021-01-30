@@ -3,6 +3,7 @@ package de.ggj21.scw.world.actor;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import de.ggj21.scw.world.actor.effect.StatusEffect;
 
 public interface GameActor {
 
@@ -40,4 +41,8 @@ public interface GameActor {
     void kill();
 
     boolean isDead();
+
+    void interactWith(GameActor otherActor);
+
+    void addStatusEffect(StatusEffect toAdd);
 }

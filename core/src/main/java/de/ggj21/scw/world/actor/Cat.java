@@ -8,6 +8,9 @@ import com.badlogic.gdx.math.Vector2;
 import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.world.CollisionHelperFactory;
 import de.ggj21.scw.world.GameWorld;
+import de.ggj21.scw.world.actor.effect.StatusEffect;
+
+import java.util.List;
 
 public class Cat extends AbstractActor {
 
@@ -15,7 +18,7 @@ public class Cat extends AbstractActor {
                final CollisionHelperFactory collisionHelperFactory,
                SoundManager soundManager, final float worldScale) {
         super(startPosition, collisionHelperFactory, soundManager,
-                44 * GameWorld.VIEWPORT_SCALE, 64 * GameWorld.VIEWPORT_SCALE, 5, 0,
+                44, 64, 5, 0,
                 true, worldScale, GameWorld.VIEWPORT_SCALE);
     }
 
@@ -25,5 +28,9 @@ public class Cat extends AbstractActor {
         TextureRegion[][] frameSplit = TextureRegion.split(catSpriteSheet, 64, 64);
         TextureRegion[] animationFrames = frameSplit[0];
         return new Animation<TextureRegion>(0.35f, animationFrames);
+    }
+
+    public List<StatusEffect> getStatusEffects() {
+        return positionAndCondition.getStatusEffects();
     }
 }

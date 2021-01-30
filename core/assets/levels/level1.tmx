@@ -65,14 +65,14 @@
 </data>
  </layer>
  <objectgroup id="3" name="objects">
-  <object id="4" type="fish" x="375.455" y="614.364">
+  <object id="4" type="fish" x="383.455" y="480.364">
    <point/>
   </object>
   <object id="7" type="wall" x="0" y="767.75" width="1759.67" height="49.4583"/>
   <object id="8" type="wall" x="175.875" y="672" width="80" height="31.875"/>
   <object id="9" type="wall" x="320.125" y="640" width="127.875" height="48"/>
   <object id="10" type="wall" x="592.125" y="672" width="95.75" height="31.75"/>
-  <object id="11" name="cat" type="cat" x="210.917" y="366">
+  <object id="11" name="cat" type="cat" x="216.917" y="663">
    <point/>
   </object>
   <object id="13" name="pixel" type="pixel" x="2319.17" y="750.917">

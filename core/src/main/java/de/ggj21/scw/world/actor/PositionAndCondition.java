@@ -4,14 +4,14 @@ import com.badlogic.gdx.math.Vector2;
 import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.world.CollisionHelper;
 import de.ggj21.scw.world.GameWorld;
+import de.ggj21.scw.world.actor.effect.StatusEffect;
 
-import java.util.EnumSet;
-import java.util.Set;
+import java.util.*;
 
 class PositionAndCondition {
 
-    private static final float MAX_VERTICAL_SPEED = 1_000 * GameWorld.VIEWPORT_SCALE;
-    private static final float GRAVITY = 3_000f * GameWorld.VIEWPORT_SCALE;
+    private static final float MAX_VERTICAL_SPEED = 3_000 * GameWorld.VIEWPORT_SCALE;
+    private static final float GRAVITY = 4_500f * GameWorld.VIEWPORT_SCALE;
 
     private final Vector2 position;
     private float verticalSpeed = 0;
@@ -21,6 +21,7 @@ class PositionAndCondition {
     private boolean jumping = false;
 
     private final Set<State> currentStates;
+    private final List<StatusEffect> statusEffects = new ArrayList<>();
 
     PositionAndCondition(final Vector2 startPosition, float horizontalSpeed, float jumpSpeed, boolean affectedByGravity, SoundManager soundManager) {
         position = startPosition;
@@ -68,10 +69,22 @@ class PositionAndCondition {
 
     void jump() {
         if (!jumping && verticalSpeed == 0) {
-            setVerticalSpeed(-jumpSpeed);
+            float horizontalSpeedModifier = 1f;
+            for (StatusEffect effect : statusEffects) {
+                horizontalSpeedModifier *= effect.getSpeedModifier();
+            }
+            setVerticalSpeed(-jumpSpeed * horizontalSpeedModifier);
             jumping = true;
             soundManager.playSound(SoundManager.Sounds.JumpStart);
         }
+    }
+
+    public void addStatusEffect(StatusEffect toAdd) {
+        statusEffects.add(toAdd);
+    }
+
+    List<StatusEffect> getStatusEffects() {
+        return statusEffects;
     }
 
     private void setVerticalSpeed(float verticalSpeed) {
@@ -79,13 +92,22 @@ class PositionAndCondition {
     }
 
     void update(final float delta, CollisionHelper collisionHelper) {
+        float horizontalSpeedModifier = 1f;
+        final ListIterator<StatusEffect> effectListIterator = statusEffects.listIterator();
+        while (effectListIterator.hasNext()) {
+            final StatusEffect effect = effectListIterator.next();
+            effect.update(delta);
+            if (effect.isWornOff()) {
+                effect.dispose();
+                effectListIterator.remove();
+            } else {
+                horizontalSpeedModifier *= effect.getSpeedModifier();
+            }
+        }
         Vector2 endPosition = new Vector2(position);
         for (final State s : currentStates) {
-            endPosition = s.update(this, delta, collisionHelper);
+            endPosition = s.update(this, delta, collisionHelper, horizontalSpeedModifier);
             position.set(endPosition);
-        }
-        if (position.y < 0) {
-            kill();
         }
     }
 
@@ -95,9 +117,9 @@ class PositionAndCondition {
          */
         MovingLeft {
             @Override
-            Vector2 update(PositionAndCondition pos, float delta, CollisionHelper collisionHelper) {
+            Vector2 update(PositionAndCondition pos, float delta, CollisionHelper collisionHelper, float horizontalSpeedModifier) {
                 final Vector2 start = pos.getPosition();
-                final Vector2 end = new Vector2(start.x - pos.horizonalSpeed * delta, start.y);
+                final Vector2 end = new Vector2(start.x - pos.horizonalSpeed * delta * horizontalSpeedModifier, start.y);
                 return collisionHelper.resolve(start, end);
             }
         },
@@ -106,9 +128,9 @@ class PositionAndCondition {
          */
         MovingRight {
             @Override
-            Vector2 update(PositionAndCondition pos, float delta, CollisionHelper collisionHelper) {
+            Vector2 update(PositionAndCondition pos, float delta, CollisionHelper collisionHelper, float horizontalSpeedModifier) {
                 final Vector2 start = pos.getPosition();
-                final Vector2 end = new Vector2(start.x + pos.horizonalSpeed * delta, start.y);
+                final Vector2 end = new Vector2(start.x + pos.horizonalSpeed * delta * horizontalSpeedModifier, start.y);
                 return collisionHelper.resolve(start, end);
             }
         },
@@ -117,7 +139,7 @@ class PositionAndCondition {
          */
         Falling {
             @Override
-            Vector2 update(PositionAndCondition pos, float delta, CollisionHelper collisionHelper) {
+            Vector2 update(PositionAndCondition pos, float delta, CollisionHelper collisionHelper, float horizontalSpeedModifier) {
                 final Vector2 start = pos.getPosition();
                 if (pos.getVerticalSpeed() < MAX_VERTICAL_SPEED) {
                     pos.setVerticalSpeed(Math.min(MAX_VERTICAL_SPEED, pos.getVerticalSpeed() + delta * GRAVITY));
@@ -139,11 +161,11 @@ class PositionAndCondition {
          */
         Dead {
             @Override
-            Vector2 update(PositionAndCondition start, float delta, CollisionHelper collisionHelper) {
+            Vector2 update(PositionAndCondition start, float delta, CollisionHelper collisionHelper, float horizontalSpeedModifier) {
                 return start.getPosition();
             }
         };
 
-        abstract Vector2 update(final PositionAndCondition start, final float delta, CollisionHelper collisionHelper);
+        abstract Vector2 update(final PositionAndCondition start, final float delta, CollisionHelper collisionHelper, float horizontalSpeedModifier);
     }
 }
