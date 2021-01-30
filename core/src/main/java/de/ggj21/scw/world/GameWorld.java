@@ -17,6 +17,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.world.actor.Cat;
 import de.ggj21.scw.world.actor.GameActor;
+import de.ggj21.scw.world.actor.Pixel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,6 +40,7 @@ public class GameWorld {
     private final SpriteBatch spriteBatch;
     private final InputProcessor inputProcessor;
     private final Cat cat;
+    private final SoundManager soundManager;
 
     private LevelState state = LevelState.Running;
 
@@ -55,6 +57,7 @@ public class GameWorld {
     }
 
     public GameWorld(TiledMap map, SoundManager soundManager) {
+        this.soundManager = soundManager;
         wallsAndPlatforms = new ArrayList<>();
         final MapObjects objects = map.getLayers().get("objects").getObjects();
         for (RectangleMapObject rectangleObject : objects.getByType(RectangleMapObject.class)) {
@@ -66,47 +69,13 @@ public class GameWorld {
         }
 
 
-        final MapObject o = objects.get("cat");
-        final MapProperties properties = o.getProperties();
-        final Vector2 start = new Vector2(
-                properties.get("x", Float.class),
-                properties.get("y", Float.class));
-        cat = new Cat(start,
-                new CollisionHelperFactory() {
-                    @Override
-                    public CollisionHelper getHelperForActor(float actorWidth, float actorHeight) {
-                        return new CollisionHelper() {
-                            @Override
-                            public Vector2 resolve(Vector2 start, Vector2 desiredEnd) {
-                                if (checkForConflict(desiredEnd)) {
-                                    return start;
-                                } else {
-                                    return desiredEnd;
-                                }
-                            }
-
-                            private boolean checkForConflict(Vector2 desiredEnd) {
-                                final Rectangle actor = new Rectangle(desiredEnd.x, desiredEnd.y, actorWidth, actorHeight);
-                                for (Rectangle obstacle : wallsAndPlatforms) {
-                                    if (Intersector.overlaps(obstacle, actor)) {
-                                        LOG.trace("Collision detected");
-                                        return true;
-                                    }
-                                }
-                                return false;
-                            }
-                        };
-                    }
-                }, soundManager, UNIT_SCALE);
+        final Cat cat = getCat(soundManager, objects);
+        this.cat = cat;
         this.actors.add(cat);
         this.inputProcessor = cat.getInputProcessor();
 
-        // debug output
-        final Iterator<String> keyIterator = properties.getKeys();
-        while (keyIterator.hasNext()) {
-            final String key = keyIterator.next();
-            LOG.info("Object {} has property {} = {}", o.getName(), key, properties.get(key));
-        }
+        this.actors.add(getPixel(soundManager, objects));
+
 
         mapRenderer = new OrthogonalTiledMapRenderer(map, UNIT_SCALE);
         camera = new OrthographicCamera();
@@ -114,6 +83,61 @@ public class GameWorld {
         camera.update();
         viewport = new FitViewport(60, 34, camera);
         spriteBatch = new SpriteBatch();
+    }
+
+    private Cat getCat(SoundManager soundManager, MapObjects objects) {
+        final MapObject o = objects.get("cat");
+        final MapProperties properties = o.getProperties();
+        final Vector2 start = new Vector2(
+                properties.get("x", Float.class),
+                properties.get("y", Float.class));
+        final Cat cat = new Cat(start, getCollisionHelperFactory(), soundManager, UNIT_SCALE);
+        // debug output
+        final Iterator<String> keyIterator = properties.getKeys();
+        while (keyIterator.hasNext()) {
+            final String key = keyIterator.next();
+            LOG.info("Object {} has property {} = {}", o.getName(), key, properties.get(key));
+        }
+        return cat;
+    }
+
+    private Pixel getPixel(SoundManager soundManager, MapObjects objects) {
+        final MapObject o = objects.get("pixel");
+        final MapProperties properties = o.getProperties();
+        final Vector2 start = new Vector2(
+                properties.get("x", Float.class),
+                properties.get("y", Float.class));
+        LOG.debug("Added pixel");
+        return new Pixel(start, getCollisionHelperFactory(), soundManager, UNIT_SCALE);
+    }
+
+    private CollisionHelperFactory getCollisionHelperFactory() {
+        return new CollisionHelperFactory() {
+            @Override
+            public CollisionHelper getHelperForActor(float actorWidth, float actorHeight) {
+                return new CollisionHelper() {
+                    @Override
+                    public Vector2 resolve(Vector2 start, Vector2 desiredEnd) {
+                        if (checkForConflict(desiredEnd)) {
+                            return start;
+                        } else {
+                            return desiredEnd;
+                        }
+                    }
+
+                    private boolean checkForConflict(Vector2 desiredEnd) {
+                        final Rectangle actor = new Rectangle(desiredEnd.x, desiredEnd.y, actorWidth, actorHeight);
+                        for (Rectangle obstacle : wallsAndPlatforms) {
+                            if (Intersector.overlaps(obstacle, actor)) {
+                                LOG.trace("Collision detected");
+                                return true;
+                            }
+                        }
+                        return false;
+                    }
+                };
+            }
+        };
     }
 
     public Viewport getViewport() {
@@ -145,8 +169,15 @@ public class GameWorld {
 
         if (state == LevelState.Running && cat.getPosition().y < 0) {
             LOG.info("Game loss");
+            soundManager.playSound(SoundManager.Sounds.Death);
             state = LevelState.Lost;
+        } else {
+
         }
+    }
+
+    private boolean checkIntersection(GameActor a, GameActor b) {
+        return false;
     }
 
     public void dispose() {

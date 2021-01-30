@@ -9,10 +9,11 @@ import java.util.Map;
 
 public class SoundManager {
     public enum Sounds {
-        JUMP_START("sound/JUMP_START_16.wav"),
-        JUMP_END("sound/JUMP_END_16.wav"),
-        MIAO("sound/MIAO_16.wav"),
-        YUM("sound/SCHMATZ_16.wav"),
+        JumpStart("sound/JUMP_START_16.wav"),
+        JumpEnd("sound/JUMP_END_16.wav"),
+        Miao("sound/MIAO_16.wav"),
+        Yum("sound/SCHMATZ_16.wav"),
+        Death("sound/DEATH_16.wav"),
         ;
 
         private String file;
@@ -32,7 +33,7 @@ public class SoundManager {
     public SoundManager() {
         music = Gdx.audio.newMusic(Gdx.files.internal("sound/ATMO_16.wav"));
         music.setLooping(true);
-        music.setVolume(.3f);
+        music.setVolume(.15f);
         music.play();
 
         for (Sounds sound : Sounds.values()) {

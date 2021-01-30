@@ -56,7 +56,7 @@ class PositionAndMovement {
         if (!jumping) {
             setVerticalSpeed(-jumpSpeed);
             jumping = true;
-            soundManager.playSound(SoundManager.Sounds.JUMP_START);
+            soundManager.playSound(SoundManager.Sounds.JumpStart);
         }
     }
 
@@ -110,7 +110,7 @@ class PositionAndMovement {
                 if (!end.equals(resolvedEnd)) {
                     if (pos.jumping && pos.getVerticalSpeed() > 0) {
                         pos.jumping = false;
-                        pos.soundManager.playSound(SoundManager.Sounds.JUMP_END);
+                        pos.soundManager.playSound(SoundManager.Sounds.JumpEnd);
                     }
                     pos.setVerticalSpeed(0);
                 }
