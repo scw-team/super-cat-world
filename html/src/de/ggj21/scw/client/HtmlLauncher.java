@@ -3,7 +3,7 @@ package de.ggj21.scw.client;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
-import de.ggj21.scw.SuperCatWorld;
+import de.ggj21.scw.SuperCatWorldGame;
 
 public class HtmlLauncher extends GwtApplication {
 
@@ -17,6 +17,6 @@ public class HtmlLauncher extends GwtApplication {
 
         @Override
         public ApplicationListener createApplicationListener () {
-                return new SuperCatWorld();
+                return new SuperCatWorldGame();
         }
 }

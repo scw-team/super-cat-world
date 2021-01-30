@@ -43,7 +43,11 @@ allprojects {
 
 project(":desktop") {
     apply plugin: "java-library"
-
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(11)
+        }
+    }
 
     dependencies {
         implementation project(":core")
@@ -60,7 +64,11 @@ project(":html") {
     apply plugin: "gwt"
     apply plugin: "war"
     apply plugin: "org.gretty"
-
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(11)
+        }
+    }
 
     dependencies {
         implementation project(":core")
@@ -79,7 +87,11 @@ project(":html") {
 
 project(":core") {
     apply plugin: "java-library"
-
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(11)
+        }
+    }
 
     dependencies {
         implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.0'

@@ -35,7 +35,7 @@
   <object id="8" type="wall" x="177" y="97.5" width="78.5" height="31"/>
   <object id="9" type="wall" x="320.5" y="63.5" width="127.5" height="48"/>
   <object id="10" type="wall" x="592.5" y="95.5" width="96" height="33.5"/>
-  <object id="11" type="cat" x="11.25" y="179.25">
+  <object id="11" name="cat" type="cat" x="11.25" y="179.25">
    <point/>
   </object>
  </objectgroup>

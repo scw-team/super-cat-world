@@ -1,6 +1,5 @@
 package de.ggj21.scw.screen;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
@@ -9,15 +8,15 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import de.ggj21.scw.SuperCatWorld;
+import de.ggj21.scw.SuperCatWorldGame;
 
 public class MainMenu extends ScreenAdapter {
 
-    private final SuperCatWorld game;
+    private final SuperCatWorldGame game;
     private SpriteBatch batch;
     private Stage stage;
 
-    public MainMenu(SuperCatWorld game) {
+    public MainMenu(SuperCatWorldGame game) {
         this.game = game;
     }
 
