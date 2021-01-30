@@ -32,6 +32,9 @@ public class GameWorld {
     private static final Logger LOG = LogManager.getLogger(GameWorld.class);
 
     private static final float UNIT_SCALE = 1 / 16f;
+    private static final float VIEWPORT_SCALE = 1 / 2f;
+    private static final int VIEWPORT_WIDTH = 60;
+    private static final int VIEWPORT_HEIGHT = 34;
 
     private final List<Rectangle> wallsAndPlatforms;
     private final List<GameActor> actors = new ArrayList<>();
@@ -83,9 +86,9 @@ public class GameWorld {
 
         mapRenderer = new OrthogonalTiledMapRenderer(map, UNIT_SCALE);
         camera = new OrthographicCamera();
-        camera.setToOrtho(false, 60, 34);
+        camera.setToOrtho(false, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
         camera.update();
-        viewport = new FitViewport(60, 34, camera);
+        viewport = new FitViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, camera);
         spriteBatch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
     }
@@ -105,7 +108,7 @@ public class GameWorld {
     }
 
     private Vector2 getObjectPosition(MapProperties properties) {
-        final float y = 1088 - properties.get("y", Float.class);
+        final float y = getCameraHeight() - properties.get("y", Float.class);
         final Vector2 start = new Vector2(properties.get("x", Float.class), y);
         return start;
     }
@@ -159,20 +162,10 @@ public class GameWorld {
         return state;
     }
 
-    public void render(float delta) {
-        LOG.trace("Camera position before: {}; and after: {}", camera.position, cat.getPosition());
-        camera.position.x = cat.getPosition().x * UNIT_SCALE;
-        camera.update();
-
-        mapRenderer.setView(camera);
-        mapRenderer.render();
-        spriteBatch.setProjectionMatrix(camera.combined);
-        spriteBatch.begin();
+    public void update(float delta) {
         for (final GameActor a : actors) {
             a.update(delta);
-            a.render(spriteBatch);
         }
-        spriteBatch.end();
 
         if (state == LevelState.Running && cat.getPosition().y < 0) {
             LOG.info("Game loss");
@@ -181,6 +174,26 @@ public class GameWorld {
         } else {
 
         }
+    }
+
+    public void render() {
+        camera.position.x = (cat.getPosition().x * UNIT_SCALE - VIEWPORT_WIDTH) * 0.3f + VIEWPORT_WIDTH;
+        camera.update();
+        mapRenderer.setView(camera);
+        mapRenderer.render(new int[]{0});
+
+        LOG.trace("Camera position before: {}; and after: {}", camera.position, cat.getPosition());
+        camera.position.x = cat.getPosition().x * UNIT_SCALE;
+        camera.update();
+
+        mapRenderer.setView(camera);
+        mapRenderer.render(new int[]{1, 2});
+        spriteBatch.setProjectionMatrix(camera.combined);
+        spriteBatch.begin();
+        for (final GameActor a : actors) {
+            a.render(spriteBatch);
+        }
+        spriteBatch.end();
     }
 
     private boolean checkIntersection(GameActor a, GameActor b) {
@@ -193,6 +206,14 @@ public class GameWorld {
         wallsAndPlatforms.clear();
         spriteBatch.dispose();
         shapeRenderer.dispose();
+    }
+
+    private static float getCameraWidth() {
+        return VIEWPORT_WIDTH / (UNIT_SCALE * VIEWPORT_SCALE);
+    }
+
+    private static float getCameraHeight() {
+        return VIEWPORT_HEIGHT / (UNIT_SCALE * VIEWPORT_SCALE);
     }
 
     public enum LevelState {

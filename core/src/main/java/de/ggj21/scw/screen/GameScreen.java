@@ -31,28 +31,37 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show() {
         final TiledMap map = new TmxMapLoader().load("levels/level1.tmx");
-        this.stage = new Stage();
         this.soundManager = new SoundManager();
         this.world = new GameWorld(map, soundManager);
+        this.stage = new Stage();
         Gdx.input.setInputProcessor(new InputMultiplexer(world.getInputProcessor(), stage));
     }
 
     @Override
     public void resize(int width, int height) {
         world.getViewport().update(width, height);
+        stage.getViewport().update(width, height);
     }
 
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0.15f, 0.15f, 0.15f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        world.render(delta);
+        // when there's a high delta (e.g. because of a render pause) we might fall through the ground
+        // to fix this, the update is done in multiple increments in this case
+        float appliedDelta = 0;
+        do {
+            float deltaToApply = Math.min(0.1f, delta);
+            world.update(deltaToApply);
+            appliedDelta += deltaToApply;
+        } while (appliedDelta < delta);
         if (world.getState() != state) {
             if (world.getState() == GameWorld.LevelState.Lost) {
                 showGameOver();
             }
             state = world.getState();
         }
+        world.render();
         stage.act(delta);
         stage.draw();
     }

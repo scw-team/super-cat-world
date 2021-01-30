@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="150" height="34" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="28">
+<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="150" height="34" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="28">
  <tileset firstgid="1" name="scw-tilemap" tilewidth="16" tileheight="16" tilecount="3" columns="3">
   <image source="../scw-tilemap.png" width="48" height="16"/>
  </tileset>
- <layer id="1" name="Kachelebene 1" width="150" height="34">
+ <imagelayer id="4" name="background" locked="1" offsetx="150" offsety="-200">
+  <image source="../nightsky3.png" width="1920" height="1080"/>
+ </imagelayer>
+ <layer id="1" name="tiles" width="150" height="34" locked="1">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -41,7 +44,7 @@
 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
 </data>
  </layer>
- <objectgroup id="3" name="objects">
+ <objectgroup id="3" name="objects" locked="1">
   <object id="4" type="fish" x="375.455" y="342.364">
    <point/>
   </object>
