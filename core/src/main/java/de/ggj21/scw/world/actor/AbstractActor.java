@@ -20,7 +20,7 @@ public abstract class AbstractActor implements GameActor {
     private static final float JUMP_SPEED = 1_200 * GameWorld.VIEWPORT_SCALE;
     private static final Logger LOG = LogManager.getLogger(AbstractActor.class);
 
-    private final PositionAndMovement positionAndMovement;
+    private final PositionAndCondition positionAndCondition;
     private final Animation<TextureRegion> animation;
     private final float width;
     private final float height;
@@ -50,7 +50,7 @@ public abstract class AbstractActor implements GameActor {
         this.worldScale = worldScale;
         this.actorVisualScale = actorVisualScale;
         this.animation = getAnimation();
-        positionAndMovement = new PositionAndMovement(startPosition, HORIZONTAL_SPEED, JUMP_SPEED, affectedByGravity, soundManager);
+        positionAndCondition = new PositionAndCondition(startPosition, HORIZONTAL_SPEED, JUMP_SPEED, affectedByGravity, soundManager);
         collisionHelper = collisionHelperFactory.getHelperForActor(this);
     }
 
@@ -58,7 +58,7 @@ public abstract class AbstractActor implements GameActor {
 
     @Override
     public Vector2 getPosition() {
-        return positionAndMovement.getPosition();
+        return positionAndCondition.getPosition();
     }
 
 
@@ -85,8 +85,8 @@ public abstract class AbstractActor implements GameActor {
     @Override
     public Rectangle getBoundingBox() {
         return new Rectangle(
-                positionAndMovement.getPosition().x + xOffset,
-                positionAndMovement.getPosition().y + yOffset,
+                positionAndCondition.getPosition().x + xOffset,
+                positionAndCondition.getPosition().y + yOffset,
                 width,
                 height);
     }
@@ -94,15 +94,15 @@ public abstract class AbstractActor implements GameActor {
     @Override
     public void update(float delta) {
         elapsedTime += delta;
-        positionAndMovement.update(delta, collisionHelper);
+        positionAndCondition.update(delta, collisionHelper);
     }
 
     @Override
     public void render(SpriteBatch batch) {
         final TextureRegion currentFrame = animation.getKeyFrame(elapsedTime, true);
         batch.draw(currentFrame,
-                positionAndMovement.getPosition().x * worldScale,
-                positionAndMovement.getPosition().y * worldScale,
+                positionAndCondition.getPosition().x * worldScale,
+                positionAndCondition.getPosition().y * worldScale,
                 currentFrame.getRegionWidth() * worldScale * actorVisualScale,
                 currentFrame.getRegionHeight() * worldScale * actorVisualScale);
     }
@@ -113,15 +113,15 @@ public abstract class AbstractActor implements GameActor {
             public boolean keyDown(int keycode) {
                 if (Input.Keys.RIGHT == keycode) {
                     LOG.debug("Right move order");
-                    positionAndMovement.startMovingRight();
+                    positionAndCondition.startMovingRight();
                     return true;
                 } else if (Input.Keys.LEFT == keycode) {
                     LOG.debug("Left move order");
-                    positionAndMovement.startMovingLeft();
+                    positionAndCondition.startMovingLeft();
                     return true;
                 } else if (Input.Keys.UP == keycode) {
                     LOG.debug("Jump order");
-                    positionAndMovement.jump();
+                    positionAndCondition.jump();
                 }
                 return super.keyDown(keycode);
             }
@@ -129,10 +129,10 @@ public abstract class AbstractActor implements GameActor {
             @Override
             public boolean keyUp(int keycode) {
                 if (Input.Keys.RIGHT == keycode) {
-                    positionAndMovement.stopMovingRight();
+                    positionAndCondition.stopMovingRight();
                     return true;
                 } else if (Input.Keys.LEFT == keycode) {
-                    positionAndMovement.stopMovingLeft();
+                    positionAndCondition.stopMovingLeft();
                     return true;
                 }
 
@@ -143,12 +143,12 @@ public abstract class AbstractActor implements GameActor {
 
     @Override
     public void kill() {
-        positionAndMovement.kill();
+        positionAndCondition.kill();
     }
 
 
     @Override
     public boolean isDead() {
-        return positionAndMovement.isDead();
+        return positionAndCondition.isDead();
     }
 }

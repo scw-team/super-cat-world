@@ -8,7 +8,7 @@ import de.ggj21.scw.world.GameWorld;
 import java.util.EnumSet;
 import java.util.Set;
 
-class PositionAndMovement {
+class PositionAndCondition {
 
     private static final float MAX_VERTICAL_SPEED = 1_000 * GameWorld.VIEWPORT_SCALE;
     private static final float GRAVITY = 3_000f * GameWorld.VIEWPORT_SCALE;
@@ -22,7 +22,7 @@ class PositionAndMovement {
 
     private final Set<State> currentStates;
 
-    PositionAndMovement(final Vector2 startPosition, float horizontalSpeed, float jumpSpeed, boolean affectedByGravity, SoundManager soundManager) {
+    PositionAndCondition(final Vector2 startPosition, float horizontalSpeed, float jumpSpeed, boolean affectedByGravity, SoundManager soundManager) {
         position = startPosition;
         this.horizonalSpeed = horizontalSpeed;
         this.jumpSpeed = jumpSpeed;
@@ -67,7 +67,7 @@ class PositionAndMovement {
     }
 
     void jump() {
-        if (!jumping) {
+        if (!jumping && verticalSpeed == 0) {
             setVerticalSpeed(-jumpSpeed);
             jumping = true;
             soundManager.playSound(SoundManager.Sounds.JumpStart);
@@ -95,7 +95,7 @@ class PositionAndMovement {
          */
         MovingLeft {
             @Override
-            Vector2 update(PositionAndMovement pos, float delta, CollisionHelper collisionHelper) {
+            Vector2 update(PositionAndCondition pos, float delta, CollisionHelper collisionHelper) {
                 final Vector2 start = pos.getPosition();
                 final Vector2 end = new Vector2(start.x - pos.horizonalSpeed * delta, start.y);
                 return collisionHelper.resolve(start, end);
@@ -106,7 +106,7 @@ class PositionAndMovement {
          */
         MovingRight {
             @Override
-            Vector2 update(PositionAndMovement pos, float delta, CollisionHelper collisionHelper) {
+            Vector2 update(PositionAndCondition pos, float delta, CollisionHelper collisionHelper) {
                 final Vector2 start = pos.getPosition();
                 final Vector2 end = new Vector2(start.x + pos.horizonalSpeed * delta, start.y);
                 return collisionHelper.resolve(start, end);
@@ -117,7 +117,7 @@ class PositionAndMovement {
          */
         Falling {
             @Override
-            Vector2 update(PositionAndMovement pos, float delta, CollisionHelper collisionHelper) {
+            Vector2 update(PositionAndCondition pos, float delta, CollisionHelper collisionHelper) {
                 final Vector2 start = pos.getPosition();
                 if (pos.getVerticalSpeed() < MAX_VERTICAL_SPEED) {
                     pos.setVerticalSpeed(Math.min(MAX_VERTICAL_SPEED, pos.getVerticalSpeed() + delta * GRAVITY));
@@ -139,11 +139,11 @@ class PositionAndMovement {
          */
         Dead {
             @Override
-            Vector2 update(PositionAndMovement start, float delta, CollisionHelper collisionHelper) {
+            Vector2 update(PositionAndCondition start, float delta, CollisionHelper collisionHelper) {
                 return start.getPosition();
             }
         };
 
-        abstract Vector2 update(final PositionAndMovement start, final float delta, CollisionHelper collisionHelper);
+        abstract Vector2 update(final PositionAndCondition start, final float delta, CollisionHelper collisionHelper);
     }
 }
