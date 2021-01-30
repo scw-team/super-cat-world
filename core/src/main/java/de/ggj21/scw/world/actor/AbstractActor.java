@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 public abstract class AbstractActor implements GameActor {
     private static final float HORIZONTAL_SPEED = 200;
-    private static final int JUMP_SPEED = -600;
+    private static final int JUMP_SPEED = 600;
     private static final Logger LOG = LogManager.getLogger(AbstractActor.class);
 
     private final PositionAndMovement positionAndMovement;
@@ -32,8 +32,7 @@ public abstract class AbstractActor implements GameActor {
             final float scale) {
         this.scale = scale;
         this.animation = getAnimation();
-        positionAndMovement = new PositionAndMovement(startPosition, HORIZONTAL_SPEED);
-        positionAndMovement.addState(PositionAndMovement.State.Falling);
+        positionAndMovement = new PositionAndMovement(startPosition, HORIZONTAL_SPEED, JUMP_SPEED);
         collisionHelper = collisionHelperFactory.getHelperForActor(width, height);
     }
 
@@ -62,15 +61,15 @@ public abstract class AbstractActor implements GameActor {
             public boolean keyDown(int keycode) {
                 if (Input.Keys.RIGHT == keycode) {
                     LOG.debug("Right move order");
-                    positionAndMovement.addState(PositionAndMovement.State.MovingRight);
+                    positionAndMovement.startMovingRight();
                     return true;
                 } else if (Input.Keys.LEFT == keycode) {
                     LOG.debug("Left move order");
-                    positionAndMovement.addState(PositionAndMovement.State.MovingLeft);
+                    positionAndMovement.startMovingLeft();
                     return true;
                 } else if (Input.Keys.UP == keycode) {
                     LOG.debug("Jump order");
-                    positionAndMovement.setVerticalSpeed(JUMP_SPEED);
+                    positionAndMovement.jump();
                 }
                 return super.keyDown(keycode);
             }
@@ -78,10 +77,10 @@ public abstract class AbstractActor implements GameActor {
             @Override
             public boolean keyUp(int keycode) {
                 if (Input.Keys.RIGHT == keycode) {
-                    positionAndMovement.removeState(PositionAndMovement.State.MovingRight);
+                    positionAndMovement.stopMovingRight();
                     return true;
                 } else if (Input.Keys.LEFT == keycode) {
-                    positionAndMovement.removeState(PositionAndMovement.State.MovingLeft);
+                    positionAndMovement.stopMovingLeft();
                     return true;
                 }
 

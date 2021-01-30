@@ -14,12 +14,15 @@ class PositionAndMovement {
     private final Vector2 position;
     private float verticalSpeed = 0;
     private final float horizonalSpeed;
+    private final float jumpSpeed;
+    private boolean jumping = false;
 
-    private final Set<State> currentStates = EnumSet.noneOf(State.class);
+    private final Set<State> currentStates = EnumSet.of(State.Falling);
 
-    PositionAndMovement(final Vector2 startPosition, float horizonalSpeed) {
+    PositionAndMovement(final Vector2 startPosition, float horizonalSpeed, float jumpSpeed) {
         position = startPosition;
         this.horizonalSpeed = horizonalSpeed;
+        this.jumpSpeed = jumpSpeed;
     }
 
     Vector2 getPosition() {
@@ -30,16 +33,31 @@ class PositionAndMovement {
         return verticalSpeed;
     }
 
-    void setVerticalSpeed(float verticalSpeed) {
+    void startMovingLeft() {
+        currentStates.add(State.MovingLeft);
+    }
+
+    void stopMovingLeft() {
+        currentStates.remove(State.MovingLeft);
+    }
+
+    void startMovingRight() {
+        currentStates.add(State.MovingRight);
+    }
+
+    void stopMovingRight() {
+        currentStates.remove(State.MovingRight);
+    }
+
+    void jump() {
+        if (!jumping) {
+            setVerticalSpeed(-jumpSpeed);
+            jumping = true;
+        }
+    }
+
+    private void setVerticalSpeed(float verticalSpeed) {
         this.verticalSpeed = verticalSpeed;
-    }
-
-    void addState(final State toAdd) {
-        this.currentStates.add(toAdd);
-    }
-
-    void removeState(final State toRemove) {
-        this.currentStates.remove(toRemove);
     }
 
     void update(final float delta, CollisionHelper collisionHelper) {
@@ -86,6 +104,9 @@ class PositionAndMovement {
                 final Vector2 end = new Vector2(start.x, start.y - delta * pos.getVerticalSpeed());
                 final Vector2 resolvedEnd = collisionHelper.resolve(start, end);
                 if (!end.equals(resolvedEnd)) {
+                    if (pos.getVerticalSpeed() > 0) {
+                        pos.jumping = false;
+                    }
                     pos.setVerticalSpeed(0);
                 }
                 return resolvedEnd;
