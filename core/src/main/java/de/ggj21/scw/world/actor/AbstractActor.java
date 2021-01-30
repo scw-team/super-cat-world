@@ -9,9 +9,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import de.ggj21.scw.SoundManager;
+import de.ggj21.scw.world.GameWorld;
 import de.ggj21.scw.world.CollisionHelper;
 import de.ggj21.scw.world.CollisionHelperFactory;
-import de.ggj21.scw.world.GameWorld;
 import de.ggj21.scw.world.actor.effect.StatusEffect;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -115,15 +115,15 @@ public abstract class AbstractActor implements GameActor {
         return new InputAdapter() {
             @Override
             public boolean keyDown(int keycode) {
-                if (Input.Keys.RIGHT == keycode) {
+                if (Input.Keys.RIGHT == keycode || Input.Keys.D == keycode) {
                     LOG.debug("Right move order");
                     positionAndCondition.startMovingRight();
                     return true;
-                } else if (Input.Keys.LEFT == keycode) {
+                } else if (Input.Keys.LEFT == keycode || Input.Keys.A == keycode) {
                     LOG.debug("Left move order");
                     positionAndCondition.startMovingLeft();
                     return true;
-                } else if (Input.Keys.UP == keycode) {
+                } else if (Input.Keys.UP == keycode || Input.Keys.W == keycode) {
                     LOG.debug("Jump order");
                     positionAndCondition.jump();
                 }
@@ -132,10 +132,10 @@ public abstract class AbstractActor implements GameActor {
 
             @Override
             public boolean keyUp(int keycode) {
-                if (Input.Keys.RIGHT == keycode) {
+                if (Input.Keys.RIGHT == keycode || Input.Keys.D == keycode) {
                     positionAndCondition.stopMovingRight();
                     return true;
-                } else if (Input.Keys.LEFT == keycode) {
+                } else if (Input.Keys.LEFT == keycode || Input.Keys.A == keycode) {
                     positionAndCondition.stopMovingLeft();
                     return true;
                 }
