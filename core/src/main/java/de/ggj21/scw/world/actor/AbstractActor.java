@@ -19,7 +19,8 @@ public abstract class AbstractActor implements GameActor {
 
     private final PositionAndMovement positionAndMovement;
     private final Animation<TextureRegion> animation;
-    private final float scale;
+    private final float worldScale;
+    private final float actorScale;
     private final CollisionHelper collisionHelper;
 
     float elapsedTime = 0;
@@ -29,14 +30,20 @@ public abstract class AbstractActor implements GameActor {
             final CollisionHelperFactory collisionHelperFactory,
             final float width,
             final float height,
-            final float scale) {
-        this.scale = scale;
+            final float worldScale,
+            final float actorScale) {
+        this.worldScale = worldScale;
+        this.actorScale = actorScale;
         this.animation = getAnimation();
         positionAndMovement = new PositionAndMovement(startPosition, HORIZONTAL_SPEED, JUMP_SPEED);
         collisionHelper = collisionHelperFactory.getHelperForActor(width, height);
     }
 
     abstract Animation<TextureRegion> getAnimation();
+
+    public Vector2 getPosition() {
+        return positionAndMovement.getPosition();
+    }
 
 
     @Override
@@ -49,10 +56,10 @@ public abstract class AbstractActor implements GameActor {
     public void render(SpriteBatch batch) {
         final TextureRegion currentFrame = animation.getKeyFrame(elapsedTime, true);
         batch.draw(currentFrame,
-                positionAndMovement.getPosition().x * scale,
-                positionAndMovement.getPosition().y * scale,
-                currentFrame.getRegionWidth() * scale,
-                currentFrame.getRegionHeight() * scale);
+                positionAndMovement.getPosition().x * worldScale,
+                positionAndMovement.getPosition().y * worldScale,
+                currentFrame.getRegionWidth() * worldScale * actorScale,
+                currentFrame.getRegionHeight() * worldScale * actorScale);
     }
 
     public InputProcessor getInputProcessor() {

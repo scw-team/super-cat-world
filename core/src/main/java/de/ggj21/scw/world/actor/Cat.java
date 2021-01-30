@@ -11,14 +11,14 @@ public class Cat extends AbstractActor {
 
     public Cat(final Vector2 startPosition,
                final CollisionHelperFactory collisionHelperFactory,
-               final float scale) {
-        super(startPosition, collisionHelperFactory, 16, 16, scale);
+               final float worldScale) {
+        super(startPosition, collisionHelperFactory, 16, 16, worldScale, 1 / 4f);
     }
 
     @Override
     Animation<TextureRegion> getAnimation() {
-        final Texture catSpriteSheet = new Texture(Gdx.files.internal("sprite/cat.png"));
-        TextureRegion[][] frameSplit = TextureRegion.split(catSpriteSheet, 16, 16);
+        final Texture catSpriteSheet = new Texture(Gdx.files.internal("sprite/Cat_Default.png"));
+        TextureRegion[][] frameSplit = TextureRegion.split(catSpriteSheet, 64, 64);
         TextureRegion[] animationFrames = frameSplit[0];
         return new Animation<TextureRegion>(0.35f, animationFrames);
     }
