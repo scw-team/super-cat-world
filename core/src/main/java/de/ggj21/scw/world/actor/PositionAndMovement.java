@@ -3,14 +3,15 @@ package de.ggj21.scw.world.actor;
 import com.badlogic.gdx.math.Vector2;
 import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.world.CollisionHelper;
+import de.ggj21.scw.world.GameWorld;
 
 import java.util.EnumSet;
 import java.util.Set;
 
 class PositionAndMovement {
 
-    private static final float MAX_VERTICAL_SPEED = 500;
-    private static final float GRAVITY = 1500f;
+    private static final float MAX_VERTICAL_SPEED = 1_000 * GameWorld.VIEWPORT_SCALE;
+    private static final float GRAVITY = 3_000f * GameWorld.VIEWPORT_SCALE;
 
     private final Vector2 position;
     private float verticalSpeed = 0;

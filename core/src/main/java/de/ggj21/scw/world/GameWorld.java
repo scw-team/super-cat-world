@@ -12,6 +12,7 @@ import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
@@ -36,8 +37,8 @@ public class GameWorld {
     private static final int[] FG_LAYERS = new int[]{2, 3};
     private static final Logger LOG = LogManager.getLogger(GameWorld.class);
 
-    private static final float UNIT_SCALE = 1 / 16f;
-    private static final float VIEWPORT_SCALE = 1 / 2f;
+    private static final float UNIT_SCALE = 1 / 24f;
+    public static final float VIEWPORT_SCALE = 3 / 4f;
     private static final int VIEWPORT_WIDTH = 60;
     private static final int VIEWPORT_HEIGHT = 34;
 
@@ -53,6 +54,7 @@ public class GameWorld {
     private final InputProcessor inputProcessor;
     private final Cat cat;
     private final SoundManager soundManager;
+    private final float mapWidth;
 
     private LevelState state = LevelState.Running;
 
@@ -80,6 +82,7 @@ public class GameWorld {
                 LOG.debug("Wall at: {}", boundingBox);
             }
         }
+        mapWidth = ((TiledMapTileLayer) map.getLayers().get("tiles")).getWidth() * 16 * UNIT_SCALE;
 
 
         final Cat cat = getCat(soundManager, objects);
@@ -193,18 +196,27 @@ public class GameWorld {
     }
 
     public void render() {
-        camera.position.x = (cat.getPosition().x * UNIT_SCALE - VIEWPORT_WIDTH) * 0.3f + VIEWPORT_WIDTH;
+        float cameraCenter = cat.getPosition().x * UNIT_SCALE;
+        LOG.debug("Camera center is {} and map width is {}", cameraCenter, mapWidth);
+
+        if (cameraCenter < VIEWPORT_WIDTH / 2f) {
+            cameraCenter = VIEWPORT_WIDTH / 2f;
+        } else if (cameraCenter > mapWidth - VIEWPORT_WIDTH / 2f) {
+            cameraCenter = mapWidth - VIEWPORT_WIDTH / 2f;
+        }
+
+        camera.position.x = (cameraCenter - VIEWPORT_WIDTH) * 0.3f + VIEWPORT_WIDTH;
         camera.update();
         mapRenderer.setView(camera);
         mapRenderer.render(BG_LAYERS);
 
-        camera.position.x = (cat.getPosition().x * UNIT_SCALE - VIEWPORT_WIDTH) * 0.6f + VIEWPORT_WIDTH;
+        camera.position.x = (cameraCenter - VIEWPORT_WIDTH) * 0.6f + VIEWPORT_WIDTH;
         camera.update();
         mapRenderer.setView(camera);
         mapRenderer.render(MID_LAYERS);
 
         LOG.trace("Camera position before: {}; and after: {}", camera.position, cat.getPosition());
-        camera.position.x = cat.getPosition().x * UNIT_SCALE;
+        camera.position.x = cameraCenter;
         camera.update();
 
         mapRenderer.setView(camera);

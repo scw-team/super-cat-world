@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.world.CollisionHelperFactory;
+import de.ggj21.scw.world.GameWorld;
 
 public class Cat extends AbstractActor {
 
@@ -14,8 +15,8 @@ public class Cat extends AbstractActor {
                final CollisionHelperFactory collisionHelperFactory,
                SoundManager soundManager, final float worldScale) {
         super(startPosition, collisionHelperFactory, soundManager,
-                22, 32, 5, 0,
-                true, worldScale, 1 / 2f);
+                44 * GameWorld.VIEWPORT_SCALE, 64 * GameWorld.VIEWPORT_SCALE, 5, 0,
+                true, worldScale, GameWorld.VIEWPORT_SCALE);
     }
 
     @Override

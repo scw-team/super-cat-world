@@ -11,12 +11,13 @@ import com.badlogic.gdx.math.Vector2;
 import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.world.CollisionHelper;
 import de.ggj21.scw.world.CollisionHelperFactory;
+import de.ggj21.scw.world.GameWorld;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public abstract class AbstractActor implements GameActor {
-    private static final float HORIZONTAL_SPEED = 200;
-    private static final int JUMP_SPEED = 600;
+    private static final float HORIZONTAL_SPEED = 400 * GameWorld.VIEWPORT_SCALE;
+    private static final float JUMP_SPEED = 1_200 * GameWorld.VIEWPORT_SCALE;
     private static final Logger LOG = LogManager.getLogger(AbstractActor.class);
 
     private final PositionAndMovement positionAndMovement;
