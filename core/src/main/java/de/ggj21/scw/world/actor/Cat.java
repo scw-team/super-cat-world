@@ -12,7 +12,7 @@ public class Cat extends AbstractActor {
     public Cat(final Vector2 startPosition,
                final CollisionHelperFactory collisionHelperFactory,
                final float worldScale) {
-        super(startPosition, collisionHelperFactory, 16, 16, worldScale, 1 / 4f);
+        super(startPosition, collisionHelperFactory, 32, 32, worldScale, 1 / 2f);
     }
 
     @Override
