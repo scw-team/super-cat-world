@@ -143,7 +143,7 @@ public class GameWorld {
         }
         spriteBatch.end();
 
-        if (cat.getPosition().y < 0) {
+        if (state == LevelState.Running && cat.getPosition().y < 0) {
             LOG.info("Game loss");
             state = LevelState.Lost;
         }

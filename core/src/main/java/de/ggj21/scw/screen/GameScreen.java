@@ -53,10 +53,8 @@ public class GameScreen extends ScreenAdapter {
             }
             state = world.getState();
         }
-        if (state == GameWorld.LevelState.Running) {
-            stage.act(delta);
-            stage.draw();
-        }
+        stage.act(delta);
+        stage.draw();
     }
 
     private void showGameOver() {
