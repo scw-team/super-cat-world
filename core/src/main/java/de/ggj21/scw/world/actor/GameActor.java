@@ -36,4 +36,8 @@ public interface GameActor {
     void render(SpriteBatch batch);
 
     Rectangle getBoundingBox();
+
+    void kill();
+
+    boolean isDead();
 }

@@ -58,6 +58,8 @@ public class GameScreen extends ScreenAdapter {
         if (world.getState() != state) {
             if (world.getState() == GameWorld.LevelState.Lost) {
                 showGameOver();
+            } else if (world.getState() == GameWorld.LevelState.Won) {
+                showVictory();
             }
             state = world.getState();
         }
@@ -74,6 +76,24 @@ public class GameScreen extends ScreenAdapter {
             }
         };
         dialog.text("This journey was too dangerous for you :(");
+        dialog.button("Leave");
+        final int width = 400;
+        final int height = 100;
+        dialog.setWidth(width);
+        dialog.setHeight(height);
+        dialog.setX((Gdx.graphics.getWidth() - width) / 2f);
+        dialog.setY((Gdx.graphics.getHeight() - height) / 2f);
+        stage.addActor(dialog);
+    }
+
+    private void showVictory() {
+        final Dialog dialog = new Dialog("You've found Pixel!", game.getSkin()) {
+            @Override
+            protected void result(Object object) {
+                game.setScreen(new MainMenu(game));
+            }
+        };
+        dialog.text("You've lost & found your beloved friend Pixel");
         dialog.button("Leave");
         final int width = 400;
         final int height = 100;

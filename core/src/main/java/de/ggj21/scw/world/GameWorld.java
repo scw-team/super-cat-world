@@ -31,12 +31,16 @@ import java.util.List;
 
 public class GameWorld {
 
+    private static final int[] BG_LAYERS = {0};
+    private static final int[] MID_LAYERS = {1};
+    private static final int[] FG_LAYERS = new int[]{2, 3};
     private static final Logger LOG = LogManager.getLogger(GameWorld.class);
 
     private static final float UNIT_SCALE = 1 / 16f;
     private static final float VIEWPORT_SCALE = 1 / 2f;
     private static final int VIEWPORT_WIDTH = 60;
     private static final int VIEWPORT_HEIGHT = 34;
+
 
     private final List<Rectangle> wallsAndPlatforms;
     private final List<GameActor> actors = new ArrayList<>();
@@ -151,6 +155,9 @@ public class GameWorld {
                             }
                             if (Intersector.overlaps(otherActor.getBoundingBox(), actorTargetBoundingBox)) {
                                 LOG.debug("Collision with actor detected: {}", otherActor);
+                                if (otherActor instanceof Pixel) {
+                                    state = LevelState.Won;
+                                }
                                 return true;
                             }
                         }
@@ -178,12 +185,10 @@ public class GameWorld {
             a.update(delta);
         }
 
-        if (state == LevelState.Running && cat.getPosition().y < 0) {
+        if (state == LevelState.Running && cat.isDead()) {
             LOG.info("Game loss");
             soundManager.playSound(SoundManager.Sounds.Death);
             state = LevelState.Lost;
-        } else {
-
         }
     }
 
@@ -191,14 +196,19 @@ public class GameWorld {
         camera.position.x = (cat.getPosition().x * UNIT_SCALE - VIEWPORT_WIDTH) * 0.3f + VIEWPORT_WIDTH;
         camera.update();
         mapRenderer.setView(camera);
-        mapRenderer.render(new int[]{0});
+        mapRenderer.render(BG_LAYERS);
+
+        camera.position.x = (cat.getPosition().x * UNIT_SCALE - VIEWPORT_WIDTH) * 0.6f + VIEWPORT_WIDTH;
+        camera.update();
+        mapRenderer.setView(camera);
+        mapRenderer.render(MID_LAYERS);
 
         LOG.trace("Camera position before: {}; and after: {}", camera.position, cat.getPosition());
         camera.position.x = cat.getPosition().x * UNIT_SCALE;
         camera.update();
 
         mapRenderer.setView(camera);
-        mapRenderer.render(new int[]{1, 2});
+        mapRenderer.render(FG_LAYERS);
         spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
         for (final GameActor a : actors) {

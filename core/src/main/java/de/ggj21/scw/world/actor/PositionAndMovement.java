@@ -57,6 +57,14 @@ class PositionAndMovement {
         currentStates.remove(State.MovingRight);
     }
 
+    void kill() {
+        currentStates.add(State.Dead);
+    }
+
+    boolean isDead() {
+        return currentStates.contains(State.Dead);
+    }
+
     void jump() {
         if (!jumping) {
             setVerticalSpeed(-jumpSpeed);
@@ -74,6 +82,9 @@ class PositionAndMovement {
         for (final State s : currentStates) {
             endPosition = s.update(this, delta, collisionHelper);
             position.set(endPosition);
+        }
+        if (position.y < 0) {
+            kill();
         }
     }
 

@@ -140,5 +140,14 @@ public abstract class AbstractActor implements GameActor {
         };
     }
 
+    @Override
+    public void kill() {
+        positionAndMovement.kill();
+    }
 
+
+    @Override
+    public boolean isDead() {
+        return positionAndMovement.isDead();
+    }
 }
