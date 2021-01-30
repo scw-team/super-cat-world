@@ -13,7 +13,7 @@ public class Pixel extends AbstractActor {
     public Pixel(final Vector2 startPosition,
                  final CollisionHelperFactory collisionHelperFactory,
                  SoundManager soundManager, final float worldScale) {
-        super(startPosition, collisionHelperFactory, soundManager, 64, 45, worldScale, 1 / 2f);
+        super(startPosition, collisionHelperFactory, soundManager, 64, 45, 0, 0, worldScale, 1 / 2f);
     }
 
     @Override

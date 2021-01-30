@@ -32,13 +32,15 @@ public abstract class AbstractActor implements GameActor {
             SoundManager soundManager,
             final float width,
             final float height,
+            final float xOffset,
+            final float yOffset,
             final float worldScale,
             final float actorScale) {
         this.worldScale = worldScale;
         this.actorScale = actorScale;
         this.animation = getAnimation();
         positionAndMovement = new PositionAndMovement(startPosition, HORIZONTAL_SPEED, JUMP_SPEED, soundManager);
-        collisionHelper = collisionHelperFactory.getHelperForActor(width, height);
+        collisionHelper = collisionHelperFactory.getHelperForActor(width, height, xOffset, yOffset);
     }
 
     abstract Animation<TextureRegion> getAnimation();

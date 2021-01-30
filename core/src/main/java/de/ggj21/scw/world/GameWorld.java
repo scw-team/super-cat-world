@@ -3,6 +3,8 @@ package de.ggj21.scw.world;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.MapProperties;
@@ -38,6 +40,7 @@ public class GameWorld {
     private final Viewport viewport;
     private final OrthogonalTiledMapRenderer mapRenderer;
     private final SpriteBatch spriteBatch;
+    private final ShapeRenderer shapeRenderer;
     private final InputProcessor inputProcessor;
     private final Cat cat;
     private final SoundManager soundManager;
@@ -59,7 +62,8 @@ public class GameWorld {
     public GameWorld(TiledMap map, SoundManager soundManager) {
         this.soundManager = soundManager;
         wallsAndPlatforms = new ArrayList<>();
-        final MapObjects objects = map.getLayers().get("objects").getObjects();
+        final MapLayer objectLayer = map.getLayers().get("objects");
+        final MapObjects objects = objectLayer.getObjects();
         for (RectangleMapObject rectangleObject : objects.getByType(RectangleMapObject.class)) {
             if (ObjectType.Wall.key.equals(rectangleObject.getProperties().get("type"))) {
                 final Rectangle boundingBox = rectangleObject.getRectangle();
@@ -83,14 +87,13 @@ public class GameWorld {
         camera.update();
         viewport = new FitViewport(60, 34, camera);
         spriteBatch = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();
     }
 
     private Cat getCat(SoundManager soundManager, MapObjects objects) {
         final MapObject o = objects.get("cat");
         final MapProperties properties = o.getProperties();
-        final Vector2 start = new Vector2(
-                properties.get("x", Float.class),
-                properties.get("y", Float.class));
+        final Vector2 start = getObjectPosition(properties);
         final Cat cat = new Cat(start, getCollisionHelperFactory(), soundManager, UNIT_SCALE);
         // debug output
         final Iterator<String> keyIterator = properties.getKeys();
@@ -101,12 +104,16 @@ public class GameWorld {
         return cat;
     }
 
+    private Vector2 getObjectPosition(MapProperties properties) {
+        final float y = 1088 - properties.get("y", Float.class);
+        final Vector2 start = new Vector2(properties.get("x", Float.class), y);
+        return start;
+    }
+
     private Pixel getPixel(SoundManager soundManager, MapObjects objects) {
         final MapObject o = objects.get("pixel");
         final MapProperties properties = o.getProperties();
-        final Vector2 start = new Vector2(
-                properties.get("x", Float.class),
-                properties.get("y", Float.class));
+        final Vector2 start = getObjectPosition(properties);
         LOG.debug("Added pixel");
         return new Pixel(start, getCollisionHelperFactory(), soundManager, UNIT_SCALE);
     }
@@ -114,7 +121,7 @@ public class GameWorld {
     private CollisionHelperFactory getCollisionHelperFactory() {
         return new CollisionHelperFactory() {
             @Override
-            public CollisionHelper getHelperForActor(float actorWidth, float actorHeight) {
+            public CollisionHelper getHelperForActor(float actorWidth, float actorHeight, float actorXOffset, float actorYOffset) {
                 return new CollisionHelper() {
                     @Override
                     public Vector2 resolve(Vector2 start, Vector2 desiredEnd) {
@@ -126,7 +133,7 @@ public class GameWorld {
                     }
 
                     private boolean checkForConflict(Vector2 desiredEnd) {
-                        final Rectangle actor = new Rectangle(desiredEnd.x, desiredEnd.y, actorWidth, actorHeight);
+                        final Rectangle actor = new Rectangle(desiredEnd.x + actorXOffset, desiredEnd.y + actorYOffset, actorWidth, actorHeight);
                         for (Rectangle obstacle : wallsAndPlatforms) {
                             if (Intersector.overlaps(obstacle, actor)) {
                                 LOG.trace("Collision detected");
@@ -182,9 +189,10 @@ public class GameWorld {
 
     public void dispose() {
         mapRenderer.dispose();
-        spriteBatch.dispose();
         actors.clear();
         wallsAndPlatforms.clear();
+        spriteBatch.dispose();
+        shapeRenderer.dispose();
     }
 
     public enum LevelState {
