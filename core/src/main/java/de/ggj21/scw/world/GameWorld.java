@@ -1,6 +1,8 @@
 package de.ggj21.scw.world;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -124,7 +126,7 @@ public class GameWorld {
     private CollisionHelperFactory getCollisionHelperFactory() {
         return new CollisionHelperFactory() {
             @Override
-            public CollisionHelper getHelperForActor(float actorWidth, float actorHeight, float actorXOffset, float actorYOffset) {
+            public CollisionHelper getHelperForActor(GameActor actor) {
                 return new CollisionHelper() {
                     @Override
                     public Vector2 resolve(Vector2 start, Vector2 desiredEnd) {
@@ -136,10 +138,19 @@ public class GameWorld {
                     }
 
                     private boolean checkForConflict(Vector2 desiredEnd) {
-                        final Rectangle actor = new Rectangle(desiredEnd.x + actorXOffset, desiredEnd.y + actorYOffset, actorWidth, actorHeight);
+                        final Rectangle actorTargetBoundingBox = new Rectangle(desiredEnd.x + actor.getXOffset(), desiredEnd.y + actor.getYOffset(), actor.getWidth(), actor.getHeight());
                         for (Rectangle obstacle : wallsAndPlatforms) {
-                            if (Intersector.overlaps(obstacle, actor)) {
-                                LOG.trace("Collision detected");
+                            if (Intersector.overlaps(obstacle, actorTargetBoundingBox)) {
+                                LOG.trace("Collision with environment detected");
+                                return true;
+                            }
+                        }
+                        for (GameActor otherActor : actors) {
+                            if (otherActor.equals(actor)) {
+                                continue;
+                            }
+                            if (Intersector.overlaps(otherActor.getBoundingBox(), actorTargetBoundingBox)) {
+                                LOG.debug("Collision with actor detected: {}", otherActor);
                                 return true;
                             }
                         }
@@ -194,6 +205,22 @@ public class GameWorld {
             a.render(spriteBatch);
         }
         spriteBatch.end();
+
+        if (LOG.isDebugEnabled()) {
+            Gdx.gl20.glEnable(GL20.GL_BLEND);
+            shapeRenderer.setProjectionMatrix(camera.combined);
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(1, 0, 0, 0.3f);
+            for (final GameActor a : actors) {
+                final Rectangle boundingBox = a.getBoundingBox();
+                shapeRenderer.rect(boundingBox.x * UNIT_SCALE, boundingBox.y * UNIT_SCALE, boundingBox.width * UNIT_SCALE, boundingBox.height * UNIT_SCALE);
+            }
+            for (final Rectangle r : wallsAndPlatforms) {
+                shapeRenderer.rect(r.x * UNIT_SCALE, r.y * UNIT_SCALE, r.width * UNIT_SCALE, r.height * UNIT_SCALE);
+            }
+            shapeRenderer.end();
+            Gdx.gl20.glDisable(GL20.GL_BLEND);
+        }
     }
 
     private boolean checkIntersection(GameActor a, GameActor b) {

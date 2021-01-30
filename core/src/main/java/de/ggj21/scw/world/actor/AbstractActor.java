@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.world.CollisionHelper;
@@ -20,8 +21,12 @@ public abstract class AbstractActor implements GameActor {
 
     private final PositionAndMovement positionAndMovement;
     private final Animation<TextureRegion> animation;
+    private final float width;
+    private final float height;
+    private final float xOffset;
+    private final float yOffset;
     private final float worldScale;
-    private final float actorScale;
+    private final float actorVisualScale;
     private final CollisionHelper collisionHelper;
 
     float elapsedTime = 0;
@@ -34,21 +39,56 @@ public abstract class AbstractActor implements GameActor {
             final float height,
             final float xOffset,
             final float yOffset,
+            final boolean affectedByGravity,
             final float worldScale,
-            final float actorScale) {
+            final float actorVisualScale) {
+        this.width = width;
+        this.height = height;
+        this.xOffset = xOffset;
+        this.yOffset = yOffset;
         this.worldScale = worldScale;
-        this.actorScale = actorScale;
+        this.actorVisualScale = actorVisualScale;
         this.animation = getAnimation();
-        positionAndMovement = new PositionAndMovement(startPosition, HORIZONTAL_SPEED, JUMP_SPEED, soundManager);
-        collisionHelper = collisionHelperFactory.getHelperForActor(width, height, xOffset, yOffset);
+        positionAndMovement = new PositionAndMovement(startPosition, HORIZONTAL_SPEED, JUMP_SPEED, affectedByGravity, soundManager);
+        collisionHelper = collisionHelperFactory.getHelperForActor(this);
     }
 
     abstract Animation<TextureRegion> getAnimation();
 
+    @Override
     public Vector2 getPosition() {
         return positionAndMovement.getPosition();
     }
 
+
+    @Override
+    public float getWidth() {
+        return width;
+    }
+
+    @Override
+    public float getHeight() {
+        return height;
+    }
+
+    @Override
+    public float getXOffset() {
+        return xOffset;
+    }
+
+    @Override
+    public float getYOffset() {
+        return yOffset;
+    }
+
+    @Override
+    public Rectangle getBoundingBox() {
+        return new Rectangle(
+                positionAndMovement.getPosition().x + xOffset,
+                positionAndMovement.getPosition().y + yOffset,
+                width,
+                height);
+    }
 
     @Override
     public void update(float delta) {
@@ -62,8 +102,8 @@ public abstract class AbstractActor implements GameActor {
         batch.draw(currentFrame,
                 positionAndMovement.getPosition().x * worldScale,
                 positionAndMovement.getPosition().y * worldScale,
-                currentFrame.getRegionWidth() * worldScale * actorScale,
-                currentFrame.getRegionHeight() * worldScale * actorScale);
+                currentFrame.getRegionWidth() * worldScale * actorVisualScale,
+                currentFrame.getRegionHeight() * worldScale * actorVisualScale);
     }
 
     public InputProcessor getInputProcessor() {

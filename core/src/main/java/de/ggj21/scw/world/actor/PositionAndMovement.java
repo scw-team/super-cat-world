@@ -19,13 +19,18 @@ class PositionAndMovement {
     private final SoundManager soundManager;
     private boolean jumping = false;
 
-    private final Set<State> currentStates = EnumSet.of(State.Falling);
+    private final Set<State> currentStates;
 
-    PositionAndMovement(final Vector2 startPosition, float horizonalSpeed, float jumpSpeed, SoundManager soundManager) {
+    PositionAndMovement(final Vector2 startPosition, float horizontalSpeed, float jumpSpeed, boolean affectedByGravity, SoundManager soundManager) {
         position = startPosition;
-        this.horizonalSpeed = horizonalSpeed;
+        this.horizonalSpeed = horizontalSpeed;
         this.jumpSpeed = jumpSpeed;
         this.soundManager = soundManager;
+        if (affectedByGravity) {
+            currentStates = EnumSet.of(State.Falling);
+        } else {
+            currentStates = EnumSet.noneOf(State.class);
+        }
     }
 
     Vector2 getPosition() {
