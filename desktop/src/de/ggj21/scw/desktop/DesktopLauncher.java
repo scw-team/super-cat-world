@@ -8,7 +8,7 @@ public class DesktopLauncher {
 	public static void main (String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setTitle("Super Cat World");
-		config.setWindowedMode(1920, 1080);
+		config.setWindowedMode(1920, 1088);
 		new Lwjgl3Application(new SuperCatWorld(), config);
 	}
 }

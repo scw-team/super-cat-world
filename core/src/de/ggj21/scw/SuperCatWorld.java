@@ -9,6 +9,5 @@ public class SuperCatWorld extends Game {
     @Override
     public void create() {
         setScreen(new MainMenu(this));
-
     }
 }
