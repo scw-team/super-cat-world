@@ -71,10 +71,10 @@
   <object id="4" type="fish" x="375.455" y="678.364">
    <point/>
   </object>
-  <object id="7" type="wall" x="2" y="831" width="797" height="132"/>
-  <object id="8" type="wall" x="177" y="737.5" width="78.5" height="31"/>
-  <object id="9" type="wall" x="320.5" y="703.5" width="127.5" height="48"/>
-  <object id="10" type="wall" x="592.5" y="735.5" width="96" height="33.5"/>
+  <object id="7" type="wall" x="0" y="831.75" width="799.75" height="128.125"/>
+  <object id="8" type="wall" x="175.875" y="736" width="80" height="31.875"/>
+  <object id="9" type="wall" x="320.125" y="704" width="127.875" height="48"/>
+  <object id="10" type="wall" x="592.125" y="736" width="95.75" height="31.75"/>
   <object id="11" name="cat" type="cat" x="213.917" y="330.583">
    <point/>
   </object>

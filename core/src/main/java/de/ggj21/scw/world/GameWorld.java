@@ -67,7 +67,7 @@ public class GameWorld {
         final Vector2 start = new Vector2(
                 properties.get("x", Float.class),
                 properties.get("y", Float.class));
-        final Cat cat = new Cat(start, UNIT_SCALE,
+        final Cat cat = new Cat(start,
                 new CollisionHelperFactory() {
                     @Override
                     public CollisionHelper getHelperForActor(float actorWidth, float actorHeight) {
@@ -93,7 +93,7 @@ public class GameWorld {
                             }
                         };
                     }
-                });
+                }, UNIT_SCALE);
         this.actors.add(cat);
         this.inputProcessor = cat.getInputProcessor();
 
