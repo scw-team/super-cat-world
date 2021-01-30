@@ -9,14 +9,15 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import de.ggj21.scw.SuperCatWorld;
 
 public class MainMenu extends ScreenAdapter {
 
-    private final Game game;
+    private final SuperCatWorld game;
     private SpriteBatch batch;
     private Stage stage;
 
-    public MainMenu(Game game) {
+    public MainMenu(SuperCatWorld game) {
         this.game = game;
     }
 
@@ -32,7 +33,7 @@ public class MainMenu extends ScreenAdapter {
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-                game.setScreen(new GameScreen());
+                game.setScreen(new GameScreen(game));
                 return true;
             }
         });

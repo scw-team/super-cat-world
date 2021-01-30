@@ -11,15 +11,17 @@ public class Cat implements GameActor {
 
     private final Vector2 position;
     private final Animation<TextureRegion> animation;
+    private final float scale;
 
     float elapsedTime = 0;
 
-    public Cat(float startX, float startY) {
+    public Cat(final Vector2 startPosition, final float scale) {
+        this.scale = scale;
         final Texture catSpriteSheet = new Texture(Gdx.files.internal("sprite/cat.png"));
         TextureRegion[][] frameSplit = TextureRegion.split(catSpriteSheet, 16, 16);
         TextureRegion[] animationFrames = frameSplit[0];
         animation = new Animation<TextureRegion>(0.35f, animationFrames);
-        position = new Vector2(startX, startY);
+        position = startPosition;
     }
 
 
@@ -31,6 +33,6 @@ public class Cat implements GameActor {
     @Override
     public void render(SpriteBatch batch) {
         final TextureRegion currentFrame = animation.getKeyFrame(elapsedTime, true);
-        batch.draw(currentFrame, position.x, position.y);
+        batch.draw(currentFrame, position.x * scale, position.y * scale, currentFrame.getRegionWidth() * scale, currentFrame.getRegionHeight() * scale);
     }
 }

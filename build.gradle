@@ -1,5 +1,5 @@
 buildscript {
-    
+
 
     repositories {
         mavenLocal()
@@ -12,7 +12,7 @@ buildscript {
     dependencies {
         classpath 'org.wisepersist:gwt-gradle-plugin:1.0.13'
         classpath 'org.gretty:gretty:3.0.2'
-        
+
 
     }
 }
@@ -51,7 +51,7 @@ project(":desktop") {
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx-controllers:gdx-controllers-desktop:$gdxControllersVersion"
-        
+
     }
 }
 
@@ -73,7 +73,7 @@ project(":html") {
         api "com.badlogicgames.gdx-controllers:gdx-controllers-gwt:$gdxControllersVersion"
         api "com.badlogicgames.gdx-controllers:gdx-controllers-gwt:$gdxControllersVersion:sources"
         api "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion:sources"
-        
+
     }
 }
 
@@ -82,10 +82,12 @@ project(":core") {
 
 
     dependencies {
+        implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.14.0'
+        runtimeOnly group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.14.0'
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
         api "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
-        
+
     }
 }
