@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.world.actor.Cat;
 import de.ggj21.scw.world.actor.GameActor;
 import org.apache.logging.log4j.LogManager;
@@ -51,7 +52,7 @@ public class GameWorld {
         }
     }
 
-    public GameWorld(TiledMap map) {
+    public GameWorld(TiledMap map, SoundManager soundManager) {
         wallsAndPlatforms = new ArrayList<>();
         final MapObjects objects = map.getLayers().get("objects").getObjects();
         for (RectangleMapObject rectangleObject : objects.getByType(RectangleMapObject.class)) {
@@ -86,7 +87,7 @@ public class GameWorld {
                                 final Rectangle actor = new Rectangle(desiredEnd.x, desiredEnd.y, actorWidth, actorHeight);
                                 for (Rectangle obstacle : wallsAndPlatforms) {
                                     if (Intersector.overlaps(obstacle, actor)) {
-                                        LOG.debug("Collision detected");
+                                        LOG.trace("Collision detected");
                                         return true;
                                     }
                                 }
@@ -94,7 +95,7 @@ public class GameWorld {
                             }
                         };
                     }
-                }, UNIT_SCALE);
+                }, soundManager, UNIT_SCALE);
         this.actors.add(cat);
         this.inputProcessor = cat.getInputProcessor();
 
@@ -122,8 +123,10 @@ public class GameWorld {
     }
 
     public void render(float delta) {
-//        camera.position.set(cat.getPosition().x, cat.getPosition().y, camera.position.z);
-//        camera.update();
+        LOG.trace("Camera position before: {}; and after: {}", camera.position, cat.getPosition());
+        camera.position.x = cat.getPosition().x * UNIT_SCALE;
+        camera.update();
+
         mapRenderer.setView(camera);
         mapRenderer.render();
         spriteBatch.setProjectionMatrix(camera.combined);

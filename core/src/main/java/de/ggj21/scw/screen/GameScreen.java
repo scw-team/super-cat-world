@@ -6,6 +6,7 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.SuperCatWorldGame;
 import de.ggj21.scw.world.GameWorld;
 import org.apache.logging.log4j.LogManager;
@@ -16,6 +17,7 @@ public class GameScreen extends ScreenAdapter {
 
     private final SuperCatWorldGame game;
     private GameWorld world;
+    private SoundManager soundManager;
 
 
     public GameScreen(SuperCatWorldGame game) {
@@ -25,7 +27,8 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void show() {
         final TiledMap map = new TmxMapLoader().load("levels/level1.tmx");
-        this.world = new GameWorld(map);
+        this.soundManager = new SoundManager();
+        this.world = new GameWorld(map, soundManager);
         Gdx.input.setInputProcessor(new InputMultiplexer(world.getInputProcessor(), Gdx.input.getInputProcessor()));
     }
 
@@ -44,5 +47,6 @@ public class GameScreen extends ScreenAdapter {
     @Override
     public void hide() {
         world.dispose();
+        soundManager.dispose();
     }
 }

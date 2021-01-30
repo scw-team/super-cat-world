@@ -5,14 +5,15 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.world.CollisionHelperFactory;
 
 public class Cat extends AbstractActor {
 
     public Cat(final Vector2 startPosition,
                final CollisionHelperFactory collisionHelperFactory,
-               final float worldScale) {
-        super(startPosition, collisionHelperFactory, 32, 32, worldScale, 1 / 2f);
+               SoundManager soundManager, final float worldScale) {
+        super(startPosition, collisionHelperFactory, soundManager, 32, 32, worldScale, 1 / 2f);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package de.ggj21.scw.world.actor;
 
 import com.badlogic.gdx.math.Vector2;
+import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.world.CollisionHelper;
 
 import java.util.EnumSet;
@@ -15,14 +16,16 @@ class PositionAndMovement {
     private float verticalSpeed = 0;
     private final float horizonalSpeed;
     private final float jumpSpeed;
+    private final SoundManager soundManager;
     private boolean jumping = false;
 
     private final Set<State> currentStates = EnumSet.of(State.Falling);
 
-    PositionAndMovement(final Vector2 startPosition, float horizonalSpeed, float jumpSpeed) {
+    PositionAndMovement(final Vector2 startPosition, float horizonalSpeed, float jumpSpeed, SoundManager soundManager) {
         position = startPosition;
         this.horizonalSpeed = horizonalSpeed;
         this.jumpSpeed = jumpSpeed;
+        this.soundManager = soundManager;
     }
 
     Vector2 getPosition() {
@@ -53,6 +56,7 @@ class PositionAndMovement {
         if (!jumping) {
             setVerticalSpeed(-jumpSpeed);
             jumping = true;
+            soundManager.playSound(SoundManager.Sounds.JUMP_START);
         }
     }
 
@@ -104,8 +108,9 @@ class PositionAndMovement {
                 final Vector2 end = new Vector2(start.x, start.y - delta * pos.getVerticalSpeed());
                 final Vector2 resolvedEnd = collisionHelper.resolve(start, end);
                 if (!end.equals(resolvedEnd)) {
-                    if (pos.getVerticalSpeed() > 0) {
+                    if (pos.jumping && pos.getVerticalSpeed() > 0) {
                         pos.jumping = false;
+                        pos.soundManager.playSound(SoundManager.Sounds.JUMP_END);
                     }
                     pos.setVerticalSpeed(0);
                 }

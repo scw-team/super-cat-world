@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.world.CollisionHelper;
 import de.ggj21.scw.world.CollisionHelperFactory;
 import org.apache.logging.log4j.LogManager;
@@ -28,6 +29,7 @@ public abstract class AbstractActor implements GameActor {
     protected AbstractActor(
             final Vector2 startPosition,
             final CollisionHelperFactory collisionHelperFactory,
+            SoundManager soundManager,
             final float width,
             final float height,
             final float worldScale,
@@ -35,7 +37,7 @@ public abstract class AbstractActor implements GameActor {
         this.worldScale = worldScale;
         this.actorScale = actorScale;
         this.animation = getAnimation();
-        positionAndMovement = new PositionAndMovement(startPosition, HORIZONTAL_SPEED, JUMP_SPEED);
+        positionAndMovement = new PositionAndMovement(startPosition, HORIZONTAL_SPEED, JUMP_SPEED, soundManager);
         collisionHelper = collisionHelperFactory.getHelperForActor(width, height);
     }
 
