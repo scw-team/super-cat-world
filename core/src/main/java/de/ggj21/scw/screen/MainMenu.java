@@ -1,13 +1,14 @@
 package de.ggj21.scw.screen;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import de.ggj21.scw.SuperCatWorldGame;
 
 public class MainMenu extends ScreenAdapter {
@@ -23,19 +24,23 @@ public class MainMenu extends ScreenAdapter {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        final Skin skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
         stage = new Stage();
-        final Label titleLabel = new Label("Super Cat World", skin, "title");
+        final Label titleLabel = new Label("Super Cat World", game.getSkin(), "title");
         titleLabel.setX(100);
         titleLabel.setY(100);
         stage.addActor(titleLabel);
-        Gdx.input.setInputProcessor(new InputAdapter() {
+        final TextButton startGame = new TextButton("Start game", game.getSkin());
+        startGame.setX(500);
+        startGame.setY(500);
+        startGame.addListener(new ClickListener() {
             @Override
-            public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 game.setScreen(new GameScreen(game));
                 return true;
             }
         });
+        stage.addActor(startGame);
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override

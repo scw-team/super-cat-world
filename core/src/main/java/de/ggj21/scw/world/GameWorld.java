@@ -40,6 +40,8 @@ public class GameWorld {
     private final InputProcessor inputProcessor;
     private final Cat cat;
 
+    private LevelState state = LevelState.Running;
+
 
     public enum ObjectType {
         Wall("wall"),
@@ -122,6 +124,10 @@ public class GameWorld {
         return inputProcessor;
     }
 
+    public LevelState getState() {
+        return state;
+    }
+
     public void render(float delta) {
         LOG.trace("Camera position before: {}; and after: {}", camera.position, cat.getPosition());
         camera.position.x = cat.getPosition().x * UNIT_SCALE;
@@ -136,6 +142,11 @@ public class GameWorld {
             a.render(spriteBatch);
         }
         spriteBatch.end();
+
+        if (cat.getPosition().y < 0) {
+            LOG.info("Game loss");
+            state = LevelState.Lost;
+        }
     }
 
     public void dispose() {
@@ -143,6 +154,12 @@ public class GameWorld {
         spriteBatch.dispose();
         actors.clear();
         wallsAndPlatforms.clear();
+    }
+
+    public enum LevelState {
+        Running,
+        Won,
+        Lost;
     }
 
 }
