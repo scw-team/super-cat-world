@@ -30,7 +30,7 @@ public class GameScreen extends ScreenAdapter {
 
     @Override
     public void show() {
-        final TiledMap map = new TmxMapLoader().load("levels/level1.tmx");
+        final TiledMap map = new TmxMapLoader().load("levels/level2.tmx");
         this.soundManager = new SoundManager();
         this.spriteBatch = new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();

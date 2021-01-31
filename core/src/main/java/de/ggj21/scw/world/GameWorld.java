@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapLayer;
@@ -18,7 +19,6 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.world.actor.Cat;
@@ -37,12 +37,13 @@ public class GameWorld {
     private static final int[] MID_LAYERS = {1};
     private static final int[] FG_LAYERS = new int[]{2, 3};
 
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
 
-    private static final float UNIT_SCALE = 1 / 24f;
-    public static final float VIEWPORT_SCALE = 3 / 4f;
+    private static final float UNIT_SCALE = 1 / 128f;
+    public static final float VIEWPORT_SCALE = 4f;
     private static final int VIEWPORT_WIDTH = 60;
     private static final int VIEWPORT_HEIGHT = 34;
+    private static final int TILE_SIZE = 256;
     public static final String MAP_PROPERTY_TYPE_NAME = "type";
 
 
@@ -92,8 +93,8 @@ public class GameWorld {
                         if (ObjectType.Wall.key.equals(rectangleObject.getProperties().get("type"))) {
                             final Rectangle boundingBox = rectangleObject.getRectangle();
                             wallsAndPlatforms.add(new Rectangle(
-                                    boundingBox.x + x * 16,
-                                    boundingBox.y + y * 16,
+                                    boundingBox.x + x * TILE_SIZE,
+                                    boundingBox.y + y * TILE_SIZE,
                                     boundingBox.width,
                                     boundingBox.height
                             ));
@@ -123,7 +124,7 @@ public class GameWorld {
                 this.actors.add(new Tonno(start, getCollisionHelperFactory(), soundManager, UNIT_SCALE));
             }
         }
-        mapWidth = ((TiledMapTileLayer) map.getLayers().get("tiles")).getWidth() * 16 * UNIT_SCALE;
+        mapWidth = ((TiledMapTileLayer) map.getLayers().get("tiles")).getWidth() * TILE_SIZE * UNIT_SCALE;
 
 
         final Cat cat = getCat(soundManager, objects);
@@ -184,7 +185,7 @@ public class GameWorld {
                         final Rectangle actorTargetBoundingBox = new Rectangle(desiredEnd.x + actor.getXOffset(), desiredEnd.y + actor.getYOffset(), actor.getWidth(), actor.getHeight());
                         for (Rectangle obstacle : wallsAndPlatforms) {
                             if (Intersector.overlaps(obstacle, actorTargetBoundingBox)) {
-                                Gdx.app.debug("World", "Collision with environment detected");
+//                                Gdx.app.debug("World", "Collision with environment detected");
                                 result = true;
                             }
                         }
@@ -242,6 +243,7 @@ public class GameWorld {
 
     public void render() {
         float cameraCenter = cat.getPosition().x * UNIT_SCALE;
+        Gdx.app.debug("World", "camera center=" + cameraCenter);
         if (cameraCenter < VIEWPORT_WIDTH / 2f) {
             cameraCenter = VIEWPORT_WIDTH / 2f;
         } else if (cameraCenter > mapWidth - VIEWPORT_WIDTH / 2f) {
@@ -270,6 +272,11 @@ public class GameWorld {
         spriteBatch.end();
 
         renderStatusEffects(cat.getStatusEffects());
+
+//        Texture test = new Texture(Gdx.files.internal("s.png"));
+//        spriteBatch.begin();
+//        spriteBatch.draw(test, 30 * VIEWPORT_SCALE, 0 * VIEWPORT_SCALE, 10 * VIEWPORT_SCALE, 10 * VIEWPORT_SCALE);
+//        spriteBatch.end();
 
         if (DEBUG) {
             Gdx.gl20.glEnable(GL20.GL_BLEND);
