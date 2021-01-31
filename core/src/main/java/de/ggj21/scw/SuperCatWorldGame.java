@@ -16,7 +16,7 @@ public class SuperCatWorldGame extends Game {
 
     @Override
     public void create() {
-        Gdx.app.setLogLevel(Application.LOG_DEBUG);
+        Gdx.app.setLogLevel(Application.LOG_INFO);
         skin = new Skin(Gdx.files.internal("flat-earth/skin/flat-earth-ui.json"));
         viewport = new FitViewport(GameWorld.getCameraWidth(), GameWorld.getCameraHeight());
         setScreen(new MainMenu(this));

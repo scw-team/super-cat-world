@@ -89,7 +89,7 @@ public class GameScreen extends ScreenAdapter {
                 game.setScreen(new MainMenu(game));
             }
         };
-        dialog.text("You've lost & found your beloved friend Pixel");
+        dialog.text("You've found your lost friend Pixel!");
         dialog.button("Leave");
         final int width = 400;
         final int height = 100;
