@@ -33,7 +33,7 @@ import java.util.ListIterator;
 
 public class GameWorld {
 
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private static final float UNIT_SCALE = 1 / 128f;
     public static final float VIEWPORT_SCALE = 4f;
@@ -199,6 +199,9 @@ public class GameWorld {
                                 cat.interactWith(otherActor);
                                 if (otherActor instanceof Pixel) {
                                     state = LevelState.Won;
+                                    soundManager.setMusicEnabled(false);
+                                    soundManager.playSound(SoundManager.Sounds.Finale, 0.2f);
+                                    soundManager.playSound(SoundManager.Sounds.Victory);
                                 }
                             }
                         }

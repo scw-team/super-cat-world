@@ -100,11 +100,19 @@ public abstract class AbstractActor implements GameActor {
     @Override
     public void render(SpriteBatch batch) {
         final TextureRegion currentFrame = getActiveAnimation().getKeyFrame(elapsedTime, true);
-        batch.draw(currentFrame,
-                positionAndCondition.getPosition().x * worldScale,
-                positionAndCondition.getPosition().y * worldScale,
-                currentFrame.getRegionWidth() * worldScale * actorVisualScale,
-                currentFrame.getRegionHeight() * worldScale * actorVisualScale);
+        if (positionAndCondition.isMovingLeft()) {
+            batch.draw(currentFrame,
+                    positionAndCondition.getPosition().x * worldScale + currentFrame.getRegionWidth() * worldScale * actorVisualScale,
+                    positionAndCondition.getPosition().y * worldScale,
+                    -currentFrame.getRegionWidth() * worldScale * actorVisualScale,
+                    currentFrame.getRegionHeight() * worldScale * actorVisualScale);
+        } else {
+            batch.draw(currentFrame,
+                    positionAndCondition.getPosition().x * worldScale,
+                    positionAndCondition.getPosition().y * worldScale,
+                    currentFrame.getRegionWidth() * worldScale * actorVisualScale,
+                    currentFrame.getRegionHeight() * worldScale * actorVisualScale);
+        }
     }
 
     public InputProcessor getInputProcessor() {

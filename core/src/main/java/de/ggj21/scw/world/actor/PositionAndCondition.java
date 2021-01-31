@@ -87,6 +87,18 @@ class PositionAndCondition {
         return statusEffects;
     }
 
+    boolean isInTheAir() {
+        return Math.abs(verticalSpeed) > 1e-5;
+    }
+
+    boolean isMoving() {
+        return currentStates.contains(State.MovingLeft) || currentStates.contains(State.MovingRight);
+    }
+
+    boolean isMovingLeft() {
+        return currentStates.contains(State.MovingLeft);
+    }
+
     SoundManager getSoundManager() {
         return soundManager;
     }
