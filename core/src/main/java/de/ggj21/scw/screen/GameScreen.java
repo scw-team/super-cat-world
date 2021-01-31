@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -11,17 +13,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import de.ggj21.scw.SoundManager;
 import de.ggj21.scw.SuperCatWorldGame;
 import de.ggj21.scw.world.GameWorld;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class GameScreen extends ScreenAdapter {
-    private static final Logger LOG = LogManager.getLogger(GameScreen.class);
-
     private final SuperCatWorldGame game;
     private GameWorld world;
     private SoundManager soundManager;
     private Stage stage;
     private GameWorld.LevelState state = GameWorld.LevelState.Running;
+    private SpriteBatch spriteBatch;
+    private ShapeRenderer shapeRenderer;
 
 
     public GameScreen(SuperCatWorldGame game) {
@@ -32,21 +32,19 @@ public class GameScreen extends ScreenAdapter {
     public void show() {
         final TiledMap map = new TmxMapLoader().load("levels/level1.tmx");
         this.soundManager = new SoundManager();
-        this.world = new GameWorld(map, soundManager);
-        this.stage = new Stage();
+        this.spriteBatch = new SpriteBatch();
+        this.shapeRenderer = new ShapeRenderer();
+        this.world = new GameWorld(map, soundManager, game.getViewport(), spriteBatch, shapeRenderer);
+        this.stage = new Stage(game.getViewport(), spriteBatch);
         Gdx.input.setInputProcessor(new InputMultiplexer(world.getInputProcessor(), stage));
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        world.getViewport().update(width, height);
-        stage.getViewport().update(width, height);
     }
 
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0.15f, 0.15f, 0.15f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        spriteBatch.setProjectionMatrix(world.getCamera().combined);
+        shapeRenderer.setProjectionMatrix(world.getCamera().combined);
         // when there's a high delta (e.g. because of a render pause) we might fall through the ground
         // to fix this, the update is done in multiple increments in this case
         float appliedDelta = 0;
@@ -81,9 +79,7 @@ public class GameScreen extends ScreenAdapter {
         final int height = 100;
         dialog.setWidth(width);
         dialog.setHeight(height);
-        dialog.setX((Gdx.graphics.getWidth() - width) / 2f);
-        dialog.setY((Gdx.graphics.getHeight() - height) / 2f);
-        stage.addActor(dialog);
+        dialog.show(stage);
     }
 
     private void showVictory() {
@@ -99,8 +95,10 @@ public class GameScreen extends ScreenAdapter {
         final int height = 100;
         dialog.setWidth(width);
         dialog.setHeight(height);
-        dialog.setX((Gdx.graphics.getWidth() - width) / 2f);
-        dialog.setY((Gdx.graphics.getHeight() - height) / 2f);
+        final float x = (GameWorld.getCameraWidth() - width) / 2f;
+        final float y = (GameWorld.getCameraHeight() - height) / 2f;
+        dialog.setX(x);
+        dialog.setY(y);
         stage.addActor(dialog);
     }
 
@@ -109,5 +107,7 @@ public class GameScreen extends ScreenAdapter {
         world.dispose();
         soundManager.dispose();
         stage.dispose();
+        spriteBatch.dispose();
+        shapeRenderer.dispose();
     }
 }

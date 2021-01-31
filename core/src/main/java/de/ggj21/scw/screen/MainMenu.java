@@ -24,7 +24,7 @@ public class MainMenu extends ScreenAdapter {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        stage = new Stage();
+        stage = new Stage(game.getViewport());
         final Label titleLabel = new Label("Super Cat World", game.getSkin(), "title");
         titleLabel.setX(100);
         titleLabel.setY(100);
@@ -48,11 +48,6 @@ public class MainMenu extends ScreenAdapter {
         Gdx.gl.glClearColor(0.02734375f, 0.037109375f, 0.193359375f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.draw();
-    }
-
-    @Override
-    public void resize(int width, int height) {
-        stage.getViewport().update(width, height);
     }
 
     @Override

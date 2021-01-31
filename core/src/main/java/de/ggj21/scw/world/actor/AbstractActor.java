@@ -1,5 +1,6 @@
 package de.ggj21.scw.world.actor;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
@@ -9,17 +10,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import de.ggj21.scw.SoundManager;
-import de.ggj21.scw.world.GameWorld;
 import de.ggj21.scw.world.CollisionHelper;
 import de.ggj21.scw.world.CollisionHelperFactory;
+import de.ggj21.scw.world.GameWorld;
 import de.ggj21.scw.world.actor.effect.StatusEffect;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public abstract class AbstractActor implements GameActor {
     private static final float HORIZONTAL_SPEED = 400 * GameWorld.VIEWPORT_SCALE;
     private static final float JUMP_SPEED = 1_500 * GameWorld.VIEWPORT_SCALE;
-    private static final Logger LOG = LogManager.getLogger(AbstractActor.class);
 
     final PositionAndCondition positionAndCondition;
     private final Animation<TextureRegion> animation;
@@ -116,15 +114,15 @@ public abstract class AbstractActor implements GameActor {
             @Override
             public boolean keyDown(int keycode) {
                 if (Input.Keys.RIGHT == keycode || Input.Keys.D == keycode) {
-                    LOG.debug("Right move order");
+                    Gdx.app.debug("Actor", "Right move order");
                     positionAndCondition.startMovingRight();
                     return true;
                 } else if (Input.Keys.LEFT == keycode || Input.Keys.A == keycode) {
-                    LOG.debug("Left move order");
+                    Gdx.app.debug("Actor", "Left move order");
                     positionAndCondition.startMovingLeft();
                     return true;
                 } else if (Input.Keys.UP == keycode || Input.Keys.W == keycode) {
-                    LOG.debug("Jump order");
+                    Gdx.app.debug("Actor", "Jump order");
                     positionAndCondition.jump();
                 }
                 return super.keyDown(keycode);

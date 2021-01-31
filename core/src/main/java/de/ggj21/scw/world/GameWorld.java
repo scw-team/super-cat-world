@@ -12,6 +12,7 @@ import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Intersector;
@@ -25,11 +26,8 @@ import de.ggj21.scw.world.actor.GameActor;
 import de.ggj21.scw.world.actor.Pixel;
 import de.ggj21.scw.world.actor.Tonno;
 import de.ggj21.scw.world.actor.effect.StatusEffect;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -38,7 +36,8 @@ public class GameWorld {
     private static final int[] BG_LAYERS = {0};
     private static final int[] MID_LAYERS = {1};
     private static final int[] FG_LAYERS = new int[]{2, 3};
-    private static final Logger LOG = LogManager.getLogger(GameWorld.class);
+
+    private static final boolean DEBUG = false;
 
     private static final float UNIT_SCALE = 1 / 24f;
     public static final float VIEWPORT_SCALE = 3 / 4f;
@@ -75,9 +74,36 @@ public class GameWorld {
         }
     }
 
-    public GameWorld(TiledMap map, SoundManager soundManager) {
+    public GameWorld(TiledMap map, SoundManager soundManager, Viewport viewport, SpriteBatch spriteBatch, ShapeRenderer shapeRenderer) {
         this.soundManager = soundManager;
         wallsAndPlatforms = new ArrayList<>();
+        final TiledMapTileLayer tileLayer = (TiledMapTileLayer) map.getLayers().get("tiles");
+        for (int x = 0; x < tileLayer.getWidth(); x++) {
+            for (int y = 0; y < tileLayer.getHeight(); y++) {
+                final TiledMapTileLayer.Cell cell = tileLayer.getCell(x, y);
+                Gdx.app.debug("World", "Cell at " + x + "," + y + "=" + cell);
+                if (cell == null) {
+                    continue;
+                }
+                final TiledMapTile cellTile = cell.getTile();
+                for (MapObject object : cellTile.getObjects()) {
+                    if (object instanceof RectangleMapObject) {
+                        final RectangleMapObject rectangleObject = (RectangleMapObject) object;
+                        if (ObjectType.Wall.key.equals(rectangleObject.getProperties().get("type"))) {
+                            final Rectangle boundingBox = rectangleObject.getRectangle();
+                            wallsAndPlatforms.add(new Rectangle(
+                                    boundingBox.x + x * 16,
+                                    boundingBox.y + y * 16,
+                                    boundingBox.width,
+                                    boundingBox.height
+                            ));
+                            Gdx.app.debug("World", "Tile wall at: " + boundingBox);
+                        }
+                    }
+                }
+            }
+        }
+
         final MapLayer objectLayer = map.getLayers().get("objects");
         final MapObjects objects = objectLayer.getObjects();
         for (MapObject object : objects) {
@@ -86,20 +112,14 @@ public class GameWorld {
                 if (ObjectType.Wall.key.equals(rectangleObject.getProperties().get("type"))) {
                     final Rectangle boundingBox = rectangleObject.getRectangle();
                     wallsAndPlatforms.add(boundingBox);
-                    LOG.debug("Wall at: {}", boundingBox);
+                    Gdx.app.debug("World", "Wall at: " + boundingBox);
                 }
             }
 
             final MapProperties properties = object.getProperties();
-            // debug output
-            final Iterator<String> keyIterator = properties.getKeys();
-            while (keyIterator.hasNext()) {
-                final String key = keyIterator.next();
-                LOG.debug("Object {} has property {} = {}", object.getName(), key, properties.get(key));
-            }
             if (ObjectType.Tonno.key.equals(properties.get(MAP_PROPERTY_TYPE_NAME))) {
                 final Vector2 start = getObjectPosition(properties);
-                LOG.debug("Fish can at position {}", start);
+                Gdx.app.log("World", "Fish can at position " + start);
                 this.actors.add(new Tonno(start, getCollisionHelperFactory(), soundManager, UNIT_SCALE));
             }
         }
@@ -118,9 +138,9 @@ public class GameWorld {
         camera = new OrthographicCamera();
         camera.setToOrtho(false, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
         camera.update();
-        viewport = new FitViewport(VIEWPORT_WIDTH, VIEWPORT_HEIGHT, camera);
-        spriteBatch = new SpriteBatch();
-        shapeRenderer = new ShapeRenderer();
+        this.viewport = viewport;
+        this.spriteBatch = spriteBatch;
+        this.shapeRenderer = shapeRenderer;
     }
 
     private Cat getCat(SoundManager soundManager, MapObjects objects) {
@@ -128,12 +148,6 @@ public class GameWorld {
         final MapProperties properties = o.getProperties();
         final Vector2 start = getObjectPosition(properties);
         final Cat cat = new Cat(start, getCollisionHelperFactory(), soundManager, UNIT_SCALE);
-        // debug output
-        final Iterator<String> keyIterator = properties.getKeys();
-        while (keyIterator.hasNext()) {
-            final String key = keyIterator.next();
-            LOG.info("Object {} has property {} = {}", o.getName(), key, properties.get(key));
-        }
         return cat;
     }
 
@@ -147,7 +161,7 @@ public class GameWorld {
         final MapObject o = objects.get("pixel");
         final MapProperties properties = o.getProperties();
         final Vector2 start = getObjectPosition(properties);
-        LOG.debug("Added pixel");
+        Gdx.app.debug("World", "Added pixel");
         return new Pixel(start, getCollisionHelperFactory(), soundManager, UNIT_SCALE);
     }
 
@@ -170,7 +184,7 @@ public class GameWorld {
                         final Rectangle actorTargetBoundingBox = new Rectangle(desiredEnd.x + actor.getXOffset(), desiredEnd.y + actor.getYOffset(), actor.getWidth(), actor.getHeight());
                         for (Rectangle obstacle : wallsAndPlatforms) {
                             if (Intersector.overlaps(obstacle, actorTargetBoundingBox)) {
-                                LOG.trace("Collision with environment detected");
+                                Gdx.app.debug("World", "Collision with environment detected");
                                 result = true;
                             }
                         }
@@ -179,7 +193,7 @@ public class GameWorld {
                                 continue;
                             }
                             if (Intersector.overlaps(otherActor.getBoundingBox(), actorTargetBoundingBox)) {
-                                LOG.debug("Collision with actor detected: {}", otherActor);
+                                Gdx.app.debug("World", "Collision with actor detected: " + otherActor);
                                 otherActor.interactWith(cat);
                                 cat.interactWith(otherActor);
                                 if (otherActor instanceof Pixel) {
@@ -208,7 +222,7 @@ public class GameWorld {
 
     public void update(float delta) {
         if (state == LevelState.Running && cat.isDead()) {
-            LOG.info("Game loss");
+            Gdx.app.log("World", "Game loss");
             soundManager.playSound(SoundManager.Sounds.Death);
             state = LevelState.Lost;
         }
@@ -228,8 +242,6 @@ public class GameWorld {
 
     public void render() {
         float cameraCenter = cat.getPosition().x * UNIT_SCALE;
-        LOG.trace("Camera center is {} and map width is {}", cameraCenter, mapWidth);
-
         if (cameraCenter < VIEWPORT_WIDTH / 2f) {
             cameraCenter = VIEWPORT_WIDTH / 2f;
         } else if (cameraCenter > mapWidth - VIEWPORT_WIDTH / 2f) {
@@ -246,22 +258,21 @@ public class GameWorld {
         mapRenderer.setView(camera);
         mapRenderer.render(MID_LAYERS);
 
-        LOG.trace("Camera position before: {}; and after: {}", camera.position, cat.getPosition());
         camera.position.x = cameraCenter;
         camera.update();
 
         mapRenderer.setView(camera);
         mapRenderer.render(FG_LAYERS);
-        spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
         for (final GameActor a : actors) {
             a.render(spriteBatch);
         }
         spriteBatch.end();
 
-        if (LOG.isDebugEnabled()) {
+        renderStatusEffects(cat.getStatusEffects());
+
+        if (DEBUG) {
             Gdx.gl20.glEnable(GL20.GL_BLEND);
-            shapeRenderer.setProjectionMatrix(camera.combined);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(1, 0, 0, 0.3f);
             for (final GameActor a : actors) {
@@ -274,8 +285,10 @@ public class GameWorld {
             shapeRenderer.end();
             Gdx.gl20.glDisable(GL20.GL_BLEND);
         }
+    }
 
-        renderStatusEffects(cat.getStatusEffects());
+    public OrthographicCamera getCamera() {
+        return camera;
     }
 
     private void renderStatusEffects(List<StatusEffect> statusEffects) {
@@ -313,15 +326,13 @@ public class GameWorld {
         mapRenderer.dispose();
         actors.clear();
         wallsAndPlatforms.clear();
-        spriteBatch.dispose();
-        shapeRenderer.dispose();
     }
 
-    private static float getCameraWidth() {
+    public static float getCameraWidth() {
         return VIEWPORT_WIDTH / (UNIT_SCALE * VIEWPORT_SCALE);
     }
 
-    private static float getCameraHeight() {
+    public static float getCameraHeight() {
         return VIEWPORT_HEIGHT / (UNIT_SCALE * VIEWPORT_SCALE);
     }
 

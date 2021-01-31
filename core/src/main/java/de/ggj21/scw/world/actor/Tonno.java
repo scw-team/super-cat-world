@@ -32,6 +32,7 @@ public class Tonno extends AbstractActor {
     public void interactWith(GameActor otherActor) {
         if (!isDead()) {
             otherActor.addStatusEffect(StatusEffect.tonno());
+            positionAndCondition.getSoundManager().playSound(SoundManager.Sounds.Yum);
         }
         kill();
     }

@@ -87,6 +87,10 @@ class PositionAndCondition {
         return statusEffects;
     }
 
+    SoundManager getSoundManager() {
+        return soundManager;
+    }
+
     private void setVerticalSpeed(float verticalSpeed) {
         this.verticalSpeed = verticalSpeed;
     }
