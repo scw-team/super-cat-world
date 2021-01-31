@@ -33,10 +33,6 @@ import java.util.ListIterator;
 
 public class GameWorld {
 
-    private static final int[] BG_LAYERS = {0};
-    private static final int[] MID_LAYERS = {1};
-    private static final int[] FG_LAYERS = new int[]{2, 3};
-
     private static final boolean DEBUG = true;
 
     private static final float UNIT_SCALE = 1 / 128f;
@@ -59,6 +55,8 @@ public class GameWorld {
     private final Cat cat;
     private final SoundManager soundManager;
     private final float mapWidth;
+    private final Texture backgroundTexture;
+    private final Texture skylineTexture;
 
     private LevelState state = LevelState.Running;
 
@@ -134,7 +132,6 @@ public class GameWorld {
 
         this.actors.add(getPixel(soundManager, objects));
 
-
         mapRenderer = new OrthogonalTiledMapRenderer(map, UNIT_SCALE);
         camera = new OrthographicCamera();
         camera.setToOrtho(false, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
@@ -142,6 +139,9 @@ public class GameWorld {
         this.viewport = viewport;
         this.spriteBatch = spriteBatch;
         this.shapeRenderer = shapeRenderer;
+
+        backgroundTexture = new Texture(Gdx.files.internal("nightsky.png"));
+        skylineTexture = new Texture(Gdx.files.internal("SKYLINE.png"));
     }
 
     private Cat getCat(SoundManager soundManager, MapObjects objects) {
@@ -250,21 +250,19 @@ public class GameWorld {
             cameraCenter = mapWidth - VIEWPORT_WIDTH / 2f;
         }
 
-        camera.position.x = (cameraCenter - VIEWPORT_WIDTH) * 0.3f + VIEWPORT_WIDTH;
-        camera.update();
-        mapRenderer.setView(camera);
-        mapRenderer.render(BG_LAYERS);
+        spriteBatch.begin();
+        float backgroundX = (cameraCenter - VIEWPORT_WIDTH) * 0.85f + VIEWPORT_WIDTH - 35f;
+        spriteBatch.draw(backgroundTexture, backgroundX, -10, 90, 50.625f);
 
-        camera.position.x = (cameraCenter - VIEWPORT_WIDTH) * 0.6f + VIEWPORT_WIDTH;
-        camera.update();
-        mapRenderer.setView(camera);
-        mapRenderer.render(MID_LAYERS);
+        float skylineX = (cameraCenter - VIEWPORT_WIDTH) * 0.7f + VIEWPORT_WIDTH - 35f;
+        spriteBatch.draw(skylineTexture, skylineX, 0, 108, 60.75f);
+        spriteBatch.end();
 
         camera.position.x = cameraCenter;
         camera.update();
 
         mapRenderer.setView(camera);
-        mapRenderer.render(FG_LAYERS);
+        mapRenderer.render();
         spriteBatch.begin();
         for (final GameActor a : actors) {
             a.render(spriteBatch);
