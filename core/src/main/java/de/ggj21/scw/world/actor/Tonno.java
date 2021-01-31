@@ -12,20 +12,23 @@ import de.ggj21.scw.world.actor.effect.StatusEffect;
 
 public class Tonno extends AbstractActor {
 
+    private final Animation<TextureRegion> idleAnimation;
+
     public Tonno(final Vector2 startPosition,
                  final CollisionHelperFactory collisionHelperFactory,
                  SoundManager soundManager, final float worldScale) {
         super(startPosition, collisionHelperFactory, soundManager,
                 65, 58, 0, 0,
                 false, worldScale, GameWorld.VIEWPORT_SCALE / 2f);
-    }
-
-    @Override
-    Animation<TextureRegion> getAnimation() {
         final Texture catSpriteSheet = new Texture(Gdx.files.internal("sprite/tonno.png"));
         TextureRegion[][] frameSplit = TextureRegion.split(catSpriteSheet, 65, 58);
         TextureRegion[] animationFrames = frameSplit[0];
-        return new Animation<TextureRegion>(0.35f, animationFrames);
+        idleAnimation = new Animation<>(0.35f, animationFrames);
+    }
+
+    @Override
+    Animation<TextureRegion> getActiveAnimation() {
+        return idleAnimation;
     }
 
     @Override

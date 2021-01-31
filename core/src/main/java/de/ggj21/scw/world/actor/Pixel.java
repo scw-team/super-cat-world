@@ -11,19 +11,22 @@ import de.ggj21.scw.world.GameWorld;
 
 public class Pixel extends AbstractActor {
 
+    private final Animation<TextureRegion> idleAnimation;
+
     public Pixel(final Vector2 startPosition,
                  final CollisionHelperFactory collisionHelperFactory,
                  SoundManager soundManager, final float worldScale) {
         super(startPosition, collisionHelperFactory, soundManager,
                 64, 45, 0, 0,
                 true, worldScale, GameWorld.VIEWPORT_SCALE);
-    }
-
-    @Override
-    Animation<TextureRegion> getAnimation() {
         final Texture catSpriteSheet = new Texture(Gdx.files.internal("sprite/Pixel.png"));
         TextureRegion[][] frameSplit = TextureRegion.split(catSpriteSheet, 64, 45);
         TextureRegion[] animationFrames = frameSplit[0];
-        return new Animation<TextureRegion>(0.35f, animationFrames);
+        idleAnimation = new Animation<>(0.35f, animationFrames);
+    }
+
+    @Override
+    Animation<TextureRegion> getActiveAnimation() {
+        return idleAnimation;
     }
 }

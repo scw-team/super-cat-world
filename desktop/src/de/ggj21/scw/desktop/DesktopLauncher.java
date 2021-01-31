@@ -2,7 +2,6 @@ package de.ggj21.scw.desktop;
 
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 import de.ggj21.scw.SuperCatWorldGame;
 
 public class DesktopLauncher {

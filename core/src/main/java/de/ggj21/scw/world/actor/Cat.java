@@ -14,20 +14,23 @@ import java.util.List;
 
 public class Cat extends AbstractActor {
 
+    private final Animation<TextureRegion> idleAnimation;
+
     public Cat(final Vector2 startPosition,
                final CollisionHelperFactory collisionHelperFactory,
                SoundManager soundManager, final float worldScale) {
         super(startPosition, collisionHelperFactory, soundManager,
                 44, 64, 5, 0,
                 true, worldScale, GameWorld.VIEWPORT_SCALE);
-    }
-
-    @Override
-    Animation<TextureRegion> getAnimation() {
         final Texture catSpriteSheet = new Texture(Gdx.files.internal("sprite/Cat_Default.png"));
         TextureRegion[][] frameSplit = TextureRegion.split(catSpriteSheet, 64, 64);
         TextureRegion[] animationFrames = frameSplit[0];
-        return new Animation<TextureRegion>(0.35f, animationFrames);
+        idleAnimation = new Animation<>(0.3f, animationFrames);
+    }
+
+    @Override
+    Animation<TextureRegion> getActiveAnimation() {
+        return idleAnimation;
     }
 
     public List<StatusEffect> getStatusEffects() {

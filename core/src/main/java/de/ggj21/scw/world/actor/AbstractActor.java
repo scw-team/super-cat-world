@@ -20,7 +20,6 @@ public abstract class AbstractActor implements GameActor {
     private static final float JUMP_SPEED = 1_500 * GameWorld.VIEWPORT_SCALE;
 
     final PositionAndCondition positionAndCondition;
-    private final Animation<TextureRegion> animation;
     private final float width;
     private final float height;
     private final float xOffset;
@@ -48,12 +47,11 @@ public abstract class AbstractActor implements GameActor {
         this.yOffset = yOffset;
         this.worldScale = worldScale;
         this.actorVisualScale = actorVisualScale;
-        this.animation = getAnimation();
         positionAndCondition = new PositionAndCondition(startPosition, HORIZONTAL_SPEED, JUMP_SPEED, affectedByGravity, soundManager);
         collisionHelper = collisionHelperFactory.getHelperForActor(this);
     }
 
-    abstract Animation<TextureRegion> getAnimation();
+    abstract Animation<TextureRegion> getActiveAnimation();
 
     @Override
     public Vector2 getPosition() {
@@ -101,7 +99,7 @@ public abstract class AbstractActor implements GameActor {
 
     @Override
     public void render(SpriteBatch batch) {
-        final TextureRegion currentFrame = animation.getKeyFrame(elapsedTime, true);
+        final TextureRegion currentFrame = getActiveAnimation().getKeyFrame(elapsedTime, true);
         batch.draw(currentFrame,
                 positionAndCondition.getPosition().x * worldScale,
                 positionAndCondition.getPosition().y * worldScale,
