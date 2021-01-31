@@ -25,7 +25,7 @@ public class MainMenu extends ScreenAdapter {
     public void show() {
         batch = new SpriteBatch();
         stage = new Stage(game.getViewport());
-        final Label titleLabel = new Label("Super Cat World", game.getSkin(), "title");
+        final Label titleLabel = new Label("Tonno Cato", game.getSkin(), "title");
         titleLabel.setX(100);
         titleLabel.setY(100);
         stage.addActor(titleLabel);
