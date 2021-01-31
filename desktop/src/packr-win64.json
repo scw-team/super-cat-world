@@ -1,0 +1,14 @@
+{
+  "platform": "windows64",
+  "jdk": "https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.9.1%2B1/OpenJDK11U-jre_x64_windows_hotspot_11.0.9.1_1.zip",
+  "executable": "tonno-cato",
+  "classpath": [
+    "build/libs/desktop-1.0.jar"
+  ],
+  "mainclass": "de.ggj21.scw.desktop.DesktopLauncher",
+  "vmargs": [
+    "Xmx1G"
+  ],
+  "minimizejre": "soft",
+  "output": "build/packr-win64"
+}
