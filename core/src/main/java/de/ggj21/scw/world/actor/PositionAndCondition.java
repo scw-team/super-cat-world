@@ -63,6 +63,10 @@ class PositionAndCondition {
         currentStates.add(State.Dead);
     }
 
+    void revive() {
+        currentStates.remove(State.Dead);
+    }
+
     boolean isDead() {
         return currentStates.contains(State.Dead);
     }

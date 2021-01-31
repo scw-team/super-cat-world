@@ -91,14 +91,19 @@ public abstract class AbstractActor implements GameActor {
     @Override
     public void update(float delta) {
         elapsedTime += delta;
-        positionAndCondition.update(delta, collisionHelper);
-        if (positionAndCondition.getPosition().y + height < 0) {
-            positionAndCondition.kill();
+        if (!positionAndCondition.isDead()) {
+            positionAndCondition.update(delta, collisionHelper);
+            if (positionAndCondition.getPosition().y + height < 0) {
+                positionAndCondition.kill();
+            }
         }
     }
 
     @Override
     public void render(SpriteBatch batch) {
+        if (positionAndCondition.isDead()) {
+            return;
+        }
         final TextureRegion currentFrame = getActiveAnimation().getKeyFrame(elapsedTime, true);
         if (positionAndCondition.isMovingLeft()) {
             batch.draw(currentFrame,

@@ -201,7 +201,7 @@ public class GameWorld {
                                     state = LevelState.Won;
                                     soundManager.setMusicEnabled(false);
                                     soundManager.playSound(SoundManager.Sounds.Finale, 0.2f);
-                                    soundManager.playSound(SoundManager.Sounds.Victory);
+                                    soundManager.playSound(SoundManager.Sounds.Victory, 0.4f);
                                 }
                             }
                         }
@@ -232,14 +232,8 @@ public class GameWorld {
         }
 
         if (state == LevelState.Running) {
-            final ListIterator<GameActor> it = actors.listIterator();
-            while (it.hasNext()) {
-                final GameActor a = it.next();
-                if (a.isDead()) {
-                    it.remove();
-                } else {
-                    a.update(delta);
-                }
+            for (GameActor a : actors) {
+                a.update(delta);
             }
         }
     }

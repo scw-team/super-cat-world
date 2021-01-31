@@ -12,7 +12,11 @@ import de.ggj21.scw.world.actor.effect.StatusEffect;
 
 public class Tonno extends AbstractActor {
 
+    private static final float RESPAWN_CD = 5f;
+
     private final Animation<TextureRegion> idleAnimation;
+
+    private float eatenForSeconds = 0f;
 
     public Tonno(final Vector2 startPosition,
                  final CollisionHelperFactory collisionHelperFactory,
@@ -36,7 +40,19 @@ public class Tonno extends AbstractActor {
         if (!isDead()) {
             otherActor.addStatusEffect(StatusEffect.tonno());
             positionAndCondition.getSoundManager().playSound(SoundManager.Sounds.Yum);
+            eatenForSeconds = 0;
+            kill();
         }
-        kill();
+    }
+
+    @Override
+    public void update(float delta) {
+        if (positionAndCondition.isDead()) {
+            eatenForSeconds += delta;
+            if (eatenForSeconds >= RESPAWN_CD) {
+                positionAndCondition.revive();
+            }
+        }
+        super.update(delta);
     }
 }
